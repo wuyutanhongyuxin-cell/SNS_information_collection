@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Xi'an Discourse Corpus — Editorial Report</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+
+<style>
+/* ────────────────────── design tokens ────────────────────── */
+:root {
+  --gold-1: #D9BD7E;
+  --gold-2: #C9A961;
+  --gold-3: #A8873E;
+  --gold-4: #8C6D2C;
+  --gold-hair: rgba(201, 169, 97, 0.22);
+  --gold-highlight: rgba(233, 208, 150, 0.58);
+
+  --metal:
+    linear-gradient(135deg,
+      #6d5a2a 0%,
+      #a8873e 10%,
+      #e8d095 28%,
+      #fff5d8 46%,
+      #e8d095 58%,
+      #a8873e 78%,
+      #6d5a2a 100%);
+  --metal-hair:
+    linear-gradient(90deg,
+      rgba(169,135,62,0) 0%,
+      rgba(233,208,150,.9) 40%,
+      rgba(255,245,216,1) 50%,
+      rgba(233,208,150,.9) 60%,
+      rgba(169,135,62,0) 100%);
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow-deep: 0 30px 60px -20px rgba(0,0,0,.55), 0 2px 0 0 rgba(255,255,255,.04) inset;
+
+  --font-serif: 'Fraunces', 'Noto Serif SC', Georgia, serif;
+  --font-sans: 'Inter Tight', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+
+  --dur-1: .18s;
+  --dur-2: .42s;
+  --ease: cubic-bezier(.2,.7,.15,1);
+}
+
+:root[data-theme='dark'] {
+  --bg-0: #070605;
+  --bg-1: #0E0C0A;
+  --bg-2: #141210;
+  --panel: rgba(255, 251, 238, 0.035);
+  --panel-hi: rgba(255, 251, 238, 0.06);
+  --panel-border: rgba(255, 245, 216, .09);
+  --panel-inset: rgba(255, 245, 216, .08);
+  --ink-1: #F4ECD8;
+  --ink-2: #D9CFB8;
+  --ink-3: #9A9281;
+  --ink-4: #5C564B;
+  --rule: rgba(255, 245, 216, 0.08);
+  --accent: var(--gold-2);
+  --accent-soft: rgba(201, 169, 97, 0.18);
+  --danger: #E08B6F;
+  --ok: #8EBFA2;
+
+  --grid-bg:
+    radial-gradient(ellipse 1200px 700px at 80% -10%, rgba(201,169,97,.09), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 10% 110%, rgba(201,169,97,.05), transparent 60%),
+    linear-gradient(180deg, #0a0806 0%, #070605 60%, #050403 100%);
+}
+
+:root[data-theme='light'] {
+  --bg-0: #F6F1E4;
+  --bg-1: #FBF7EC;
+  --bg-2: #FFFDF5;
+  --panel: rgba(255, 252, 242, 0.78);
+  --panel-hi: rgba(255, 252, 242, 0.92);
+  --panel-border: rgba(80, 60, 30, .11);
+  --panel-inset: rgba(255, 255, 255, .9);
+  --ink-1: #1A1510;
+  --ink-2: #3A2F22;
+  --ink-3: #6B5C45;
+  --ink-4: #9D8D6F;
+  --rule: rgba(80, 60, 30, .12);
+  --accent: var(--gold-4);
+  --accent-soft: rgba(140, 109, 44, 0.14);
+  --danger: #9E4E2E;
+  --ok: #3E7A54;
+
+  --grid-bg:
+    radial-gradient(ellipse 1200px 700px at 80% -10%, rgba(201,169,97,.22), transparent 65%),
+    radial-gradient(ellipse 900px 500px at 5% 110%, rgba(169,135,62,.14), transparent 65%),
+    linear-gradient(180deg, #FBF7EC 0%, #F6F1E4 55%, #EDE6D2 100%);
+}
+
+/* ────────────────────── base ────────────────────── */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-1);
+  background: var(--grid-bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'ss02', 'cv11', 'tnum';
+  letter-spacing: .005em;
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: .6;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 0;
+}
+:root[data-theme='light'] body::before { opacity: .35; mix-blend-mode: multiply; }
+
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--accent); }
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 48px 44px 80px;
+}
+
+/* ────────────────────── header ────────────────────── */
+header.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+header.top::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px; height: 1px;
+  background: var(--metal-hair);
+  opacity: .42;
+}
+.brand {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.brand .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 12px;
+}
+.brand .eyebrow::before {
+  content: ""; width: 26px; height: 1px; background: var(--accent);
+}
+.brand h1 {
+  margin: 2px 0 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(40px, 4.2vw, 62px);
+  letter-spacing: -0.015em;
+  line-height: .98;
+  color: var(--ink-1);
+  font-variation-settings: "opsz" 120;
+}
+.brand h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+  font-variation-settings: "opsz" 144;
+}
+.brand .sub {
+  margin-top: 14px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 16px;
+  color: var(--ink-3);
+  max-width: 540px;
+}
+
+.meta-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+.meta-right .gen {
+  display: flex; align-items: center; gap: 10px;
+}
+.meta-right .gen .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: .8; }
+  50% { opacity: .25; }
+}
+
+/* theme switch — crown knob */
+.theme-toggle {
+  position: relative;
+  width: 72px; height: 32px;
+  border-radius: 32px;
+  padding: 2px;
+  cursor: pointer;
+  background: var(--metal);
+  box-shadow:
+    0 1px 0 rgba(255,245,216,.55) inset,
+    0 -1px 0 rgba(0,0,0,.45) inset,
+    0 8px 22px -6px rgba(0,0,0,.6);
+  border: none;
+  outline: none;
+  transition: filter var(--dur-1) var(--ease);
+}
+.theme-toggle:hover { filter: brightness(1.08); }
+.theme-toggle .knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #1a1812 0%, #050403 60%, #000 100%);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.5),
+    0 0 0 1px rgba(0,0,0,.5),
+    0 1px 0 rgba(255,245,216,.3) inset;
+  transition: transform var(--dur-2) var(--ease);
+  display: grid; place-items: center;
+  color: var(--gold-1);
+  font-size: 10px;
+}
+:root[data-theme='light'] .theme-toggle .knob {
+  transform: translateX(40px);
+  background: radial-gradient(circle at 30% 30%, #fffbe8 0%, #e8d095 60%, #a8873e 100%);
+  color: #3A2F22;
+}
+
+/* ────────────────────── hero KPI ────────────────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  margin: 40px 0 32px;
+}
+.kpi {
+  position: relative;
+  padding: 22px 22px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid var(--panel-border);
+  box-shadow:
+    0 1px 0 var(--panel-inset) inset,
+    0 -1px 0 rgba(0,0,0,.12) inset,
+    0 20px 50px -24px rgba(0,0,0,.55);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--dur-1) var(--ease);
+}
+.kpi::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,245,216,.06), transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+.kpi::after {
+  content: "";
+  position: absolute; top: 0; left: -60%;
+  width: 60%; height: 100%;
+  background: linear-gradient(110deg, transparent 20%, rgba(255,245,216,.18) 50%, transparent 80%);
+  transform: translateX(0);
+  transition: transform .9s var(--ease);
+  pointer-events: none;
+}
+.kpi:hover::after { transform: translateX(340%); }
+.kpi:hover { transform: translateY(-2px); }
+.kpi .label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.kpi .label::before {
+  content: "";
+  width: 14px; height: 1px; background: var(--accent); opacity: .7;
+}
+.kpi .value {
+  font-family: var(--font-serif);
+  font-variation-settings: "opsz" 144;
+  font-weight: 400;
+  font-size: 54px;
+  line-height: 1.02;
+  margin: 8px 0 2px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--ink-1) 0%, var(--ink-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.kpi.accent .value {
+  background: var(--metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.35));
+}
+.kpi .foot {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* ────────────────────── tabs ────────────────────── */
+nav.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 1px 0 var(--panel-inset) inset;
+  margin-bottom: 28px;
+  overflow-x: auto;
+}
+nav.tabs button {
+  flex: 1;
+  min-width: 98px;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: .02em;
+  border-radius: 9px;
+  position: relative;
+  transition: color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+nav.tabs button .num {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-4);
+  letter-spacing: .08em;
+}
+nav.tabs button:hover { color: var(--ink-1); background: var(--panel-hi); }
+nav.tabs button[aria-selected='true'] {
+  color: var(--ink-1);
+  background: var(--panel-hi);
+  box-shadow:
+    0 1px 0 var(--panel-inset) inset,
+    0 -1px 0 rgba(0,0,0,.1) inset,
+    0 6px 18px -10px rgba(0,0,0,.45);
+}
+nav.tabs button[aria-selected='true']::after {
+  content: "";
+  position: absolute; left: 22%; right: 22%; bottom: 3px; height: 1.5px;
+  background: var(--metal-hair);
+  border-radius: 2px;
+}
+
+/* ────────────────────── section / card ────────────────────── */
+section.panel { display: none; animation: fadeUp var(--dur-2) var(--ease); }
+section.panel.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+.grid.g2 { grid-template-columns: 1.2fr .8fr; }
+.grid.g2-e { grid-template-columns: 1fr 1fr; }
+.grid.g3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.card {
+  position: relative;
+  padding: 22px 24px;
+  border-radius: var(--radius-xl);
+  background: var(--panel);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid var(--panel-border);
+  box-shadow:
+    0 1px 0 var(--panel-inset) inset,
+    0 -1px 0 rgba(0,0,0,.12) inset,
+    var(--shadow-deep);
+  overflow: hidden;
+}
+.card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--metal-hair);
+  opacity: .5;
+}
+
+.card h3 {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-variation-settings: "opsz" 72;
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  color: var(--ink-1);
+}
+.card h3 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+.card .caption {
+  margin: 0 0 18px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-3);
+  max-width: 70ch;
+}
+
+.chart { width: 100%; height: 360px; }
+.chart.sm { height: 260px; }
+.chart.lg { height: 440px; }
+
+/* ────────────────────── tables ────────────────────── */
+.table-wrap {
+  margin: 6px -6px -6px;
+  padding: 2px 6px;
+  max-height: 520px;
+  overflow: auto;
+  border-radius: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-soft) transparent;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table thead th {
+  position: sticky; top: 0;
+  background: var(--panel-hi);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 12px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--rule);
+}
+table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px dashed var(--rule);
+  color: var(--ink-2);
+  vertical-align: top;
+}
+table tbody tr:hover td { background: var(--panel-hi); color: var(--ink-1); }
+td.num, th.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+td.title {
+  max-width: 560px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--ink-1);
+}
+td.preview {
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  color: var(--ink-2);
+  font-style: italic;
+}
+
+/* chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--ink-2);
+}
+.chip.bili { color: #88B8D9; border-color: rgba(136,184,217,.28); }
+.chip.xhs  { color: #E08B8B; border-color: rgba(224,139,139,.28); }
+.chip.gold {
+  color: #2A2010;
+  background: var(--metal);
+  border: none;
+  box-shadow: 0 1px 0 rgba(255,245,216,.6) inset, 0 -1px 0 rgba(0,0,0,.3) inset;
+}
+:root[data-theme='dark'] .chip.gold { color: #1a140a; }
+
+.score {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.score.hi { background: rgba(224,139,111,.16); color: var(--danger); }
+
+/* pill bars inline */
+.bar {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  overflow: hidden;
+}
+.bar > span {
+  display: block;
+  height: 100%;
+  background: var(--metal);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.12) inset;
+}
+
+/* two-column list */
+ul.plain {
+  list-style: none; margin: 0; padding: 0;
+  columns: 2; column-gap: 28px;
+}
+ul.plain li {
+  display: grid;
+  grid-template-columns: 22px 1fr 42px;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--rule);
+  break-inside: avoid;
+}
+ul.plain li .rank {
+  font-family: var(--font-mono);
+  color: var(--ink-4);
+  font-size: 11px;
+  text-align: right;
+}
+ul.plain li .name {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--ink-1);
+}
+ul.plain li .cnt {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--accent);
+  text-align: right;
+}
+
+/* filter bar */
+.filters {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 18px;
+}
+.filters select, .filters input {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--ink-1);
+  outline: none;
+  min-width: 160px;
+}
+.filters select:focus, .filters input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* footer */
+footer {
+  margin-top: 52px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  position: relative;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+footer::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+  background: var(--metal-hair); opacity: .38;
+}
+footer .colophon {
+  font-family: var(--font-serif);
+  font-style: italic;
+  letter-spacing: 0;
+  font-size: 12.5px;
+  text-transform: none;
+  color: var(--ink-3);
+  max-width: 60ch;
+}
+
+/* responsive */
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(3, 1fr); }
+  .grid.g2, .grid.g2-e, .grid.g3 { grid-template-columns: 1fr; }
+  .brand h1 { font-size: 44px; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 28px 20px 60px; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  header.top { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .meta-right { align-items: flex-start; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Xi'an Discourse Corpus · Volume I</div>
+    <h1>City of <em>Silk &amp; Smoke</em></h1>
+    <div class="sub">An editorial index of what Bilibili &amp; Xiaohongshu say about Xi'an — places named, dishes ranked, sentiment decoded.</div>
+  </div>
+  <div class="meta-right">
+    <div class="gen"><span class="dot"></span><span id="gen-time">—</span></div>
+    <div><span id="gen-summary">—</span></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <span class="knob" id="knob-icon">◐</span>
+    </button>
+  </div>
+</header>
+
+<!-- KPI -->
+<section class="kpis" id="kpis"></section>
+
+<!-- Tabs -->
+<nav class="tabs" id="tabs" role="tablist"></nav>
+
+<!-- Overview -->
+<section class="panel active" id="tab-overview">
+  <div class="grid g2">
+    <div class="card">
+      <h3>Corpus <em>at a glance</em></h3>
+      <p class="caption">帖子在两个平台上的分布，以及关键词之间的流向。带子图展示 source × keyword 的体量对比。</p>
+      <div class="chart" id="chart-sankey"></div>
+    </div>
+    <div class="card">
+      <h3>Platforms <em>by volume</em></h3>
+      <p class="caption">小红书样本少但评论密度极高；Bilibili 帖子多但单帖讨论浅。</p>
+      <div class="chart sm" id="chart-source"></div>
+      <div class="chart sm" id="chart-keyword"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Foods -->
+<section class="panel" id="tab-foods">
+  <div class="grid g2">
+    <div class="card">
+      <h3>The <em>Edible</em> Canon</h3>
+      <p class="caption">按提及次数排序的西安食物 — 从街头的肉夹馍到宴席上的葫芦鸡。</p>
+      <div class="chart lg" id="chart-foods"></div>
+    </div>
+    <div class="card">
+      <h3>Sentiment <em>split</em></h3>
+      <p class="caption">好评(金) vs 差评(铜) — 基于知网HowNet 8,800+ 情感词典 + jieba 分词 + 否定翻转。</p>
+      <div class="chart lg" id="chart-foods-sent"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Net Sentiment <em>Score</em></h3>
+    <p class="caption">NSS = (好评−差评)/(好评+差评)，范围 [−1, +1]。越亮（香槟金）口碑越稳，越暗（氧化铜）争议越大。Hover 查看差评率与 Wilson 置信分。</p>
+    <div class="chart lg" id="chart-foods-nss"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Co-mentions</h3>
+    <p class="caption">同一段文本中共同出现的 食物 × 景点 组合（≥2 次）。</p>
+    <div class="table-wrap" id="table-cooccur"></div>
+  </div>
+</section>
+
+<!-- Spots -->
+<section class="panel" id="tab-spots">
+  <div class="grid g2">
+    <div class="card">
+      <h3>The <em>Pilgrimage</em> Ledger</h3>
+      <p class="caption">从钟楼到兵马俑 — 所有被提及的地标按出现频次排名。</p>
+      <div class="chart lg" id="chart-spots"></div>
+    </div>
+    <div class="card">
+      <h3>Sentiment <em>split</em></h3>
+      <p class="caption">景点在好评 vs 差评文本中的出现次数对比。</p>
+      <div class="chart lg" id="chart-spots-sent"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Net Sentiment <em>Score</em></h3>
+    <p class="caption">NSS = (好评−差评)/(好评+差评)。越亮（香槟金）口碑越稳，越暗（氧化铜）争议越大。Hover 查看详情。</p>
+    <div class="chart lg" id="chart-spots-nss"></div>
+  </div>
+</section>
+
+<!-- Places / 店名 -->
+<section class="panel" id="tab-places">
+  <div class="grid g2">
+    <div class="card">
+      <h3>Candidate <em>storefronts</em></h3>
+      <p class="caption">通过 jieba + 自定义词典抽取的候选店名。</p>
+      <ul class="plain" id="list-places"></ul>
+    </div>
+    <div class="card">
+      <h3>Sentiment <em>split</em></h3>
+      <p class="caption">店名在好评 vs 差评文本中的出现次数对比。</p>
+      <div class="chart lg" id="chart-places-sent"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Net Sentiment <em>Score</em></h3>
+    <p class="caption">NSS = (好评−差评)/(好评+差评)。越亮（香槟金）口碑越稳，越暗（氧化铜）争议越大。Hover 查看详情。</p>
+    <div class="chart lg" id="chart-places-nss"></div>
+  </div>
+</section>
+
+<!-- Comments length -->
+<section class="panel" id="tab-comments">
+  <div class="grid g2-e">
+    <div class="card">
+      <h3>Depth of <em>discourse</em></h3>
+      <p class="caption">评论长度的分布直方图。xhs 有明显长尾，bili 集中在短评。</p>
+      <div class="chart lg" id="chart-hist"></div>
+    </div>
+    <div class="card">
+      <h3>Statistical <em>signatures</em></h3>
+      <p class="caption">两个平台的五数概括 — 中位数、90 分位、均值、极值。</p>
+      <div class="table-wrap" id="table-stats"></div>
+      <div class="chart sm" id="chart-density" style="margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Ads -->
+<section class="panel" id="tab-ads">
+  <div class="grid g2-e">
+    <div class="card">
+      <h3>Ad <em>suspicion</em> spectrum</h3>
+      <p class="caption">按广告分（关键词、链接、emoji 密度、字符重复）散点。右上象限多为硬广嫌疑。</p>
+      <div class="chart lg" id="chart-ads"></div>
+    </div>
+    <div class="card">
+      <h3>Flagged specimens</h3>
+      <p class="caption">评分 ≥ 3 的帖子/评论样例。</p>
+      <div class="filters">
+        <select id="ad-kind">
+          <option value="posts">帖子</option>
+          <option value="comments">评论</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="table-ads"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Posts table -->
+<section class="panel" id="tab-posts">
+  <div class="card">
+    <h3>The <em>raw</em> ledger</h3>
+    <p class="caption">全部帖子（按评论量排序，前 200 条）。可按平台和关键词筛选。</p>
+    <div class="filters">
+      <select id="f-source"><option value="">全部平台</option></select>
+      <select id="f-keyword"><option value="">全部关键词</option></select>
+      <input id="f-search" placeholder="搜索标题…" />
+    </div>
+    <div class="table-wrap" id="table-posts"></div>
+  </div>
+</section>
+
+<footer>
+  <div>XDC · 2026 · Editorial Data Report</div>
+  <div class="colophon">Set in Fraunces, Inter Tight, IBM Plex Mono &amp; Noto Serif SC. Charts powered by ECharts. Colors distilled from champagne gold.</div>
+</footer>
+
+</div>
+
+<script id="data-json" type="application/json">
+/*__DATA_JSON__*/{}
+</script>
+
+<script>
+(function(){
+  const DATA = JSON.parse(document.getElementById('data-json').textContent);
+  const root = document.documentElement;
+
+  // ─────── theme ───────
+  const saved = localStorage.getItem('xdc-theme');
+  if (saved) root.setAttribute('data-theme', saved);
+  else if (window.matchMedia('(prefers-color-scheme: light)').matches)
+    root.setAttribute('data-theme', 'light');
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('xdc-theme', next);
+    setTimeout(redrawAll, 80);
+  });
+
+  // ─────── ECharts theme (gold-editorial) ───────
+  function tokens() {
+    const cs = getComputedStyle(root);
+    const theme = root.getAttribute('data-theme');
+    return {
+      ink1: cs.getPropertyValue('--ink-1').trim(),
+      ink2: cs.getPropertyValue('--ink-2').trim(),
+      ink3: cs.getPropertyValue('--ink-3').trim(),
+      ink4: cs.getPropertyValue('--ink-4').trim(),
+      rule: cs.getPropertyValue('--rule').trim(),
+      accent: cs.getPropertyValue('--accent').trim(),
+      accentSoft: cs.getPropertyValue('--accent-soft').trim(),
+      isDark: theme === 'dark',
+    };
+  }
+
+  function palette() {
+    const t = tokens();
+    return t.isDark
+      ? ['#E8D095', '#C9A961', '#A8873E', '#8C6D2C', '#5E4B1E', '#88B8D9', '#A8BD95', '#D9A88E']
+      : ['#8C6D2C', '#A8873E', '#C9A961', '#D9BD7E', '#E0C98A', '#4E7FA8', '#6C8E63', '#A8683E'];
+  }
+
+  function baseOpt(extra = {}) {
+    const t = tokens();
+    return {
+      color: palette(),
+      textStyle: { fontFamily: "'Inter Tight','Noto Serif SC',sans-serif", color: t.ink2 },
+      title: { textStyle: { color: t.ink1, fontFamily: "'Fraunces',serif", fontWeight: 400 } },
+      grid: { left: 18, right: 28, top: 28, bottom: 18, containLabel: true },
+      tooltip: {
+        backgroundColor: t.isDark ? 'rgba(20,18,16,.95)' : 'rgba(255,253,245,.97)',
+        borderColor: t.accent,
+        borderWidth: 1,
+        textStyle: { color: t.ink1, fontFamily: "'Inter Tight',sans-serif", fontSize: 12 },
+        extraCssText: 'backdrop-filter:blur(10px);box-shadow:0 18px 40px -16px rgba(0,0,0,.4);padding:10px 12px;border-radius:10px;',
+      },
+      xAxis: {
+        axisLine: { lineStyle: { color: t.rule } },
+        axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        splitLine: { lineStyle: { color: t.rule, type: [2,4], dashOffset: 3 } },
+      },
+      ...extra,
+    };
+  }
+
+  const charts = {};
+  function mountChart(id, buildOpt) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (charts[id]) { charts[id].dispose(); }
+    charts[id] = echarts.init(el, null, { renderer: 'canvas' });
+    charts[id].setOption(buildOpt());
+    charts[id]._builder = buildOpt;
+  }
+
+  function redrawAll() {
+    Object.keys(charts).forEach(id => {
+      if (charts[id]._builder) {
+        charts[id].setOption(charts[id]._builder(), true);
+      }
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    Object.values(charts).forEach(c => c.resize());
+  });
+
+  // ─────── header ───────
+  const M = DATA.meta;
+  document.getElementById('gen-time').textContent = 'Generated ' + M.generated_at;
+  document.getElementById('gen-summary').textContent =
+    `${M.posts_total} posts · ${M.comments_total} comments · ${M.keywords_total} keywords`;
+
+  // ─────── KPI cards ───────
+  const sourceMap = Object.fromEntries(DATA.sources.map(s => [s.source, s.count]));
+  const biliN = sourceMap.bili || 0;
+  const xhsN = sourceMap.xhs || 0;
+  const ratio = xhsN > 0 ? (biliN/xhsN).toFixed(1) : '∞';
+
+  const kpis = [
+    { label: 'Posts total',    value: M.posts_total,     foot: `bili ${biliN} · xhs ${xhsN}` },
+    { label: 'Comments',       value: M.comments_total,  foot: 'aggregated from both' },
+    { label: 'Keywords',       value: M.keywords_total,  foot: 'search seeds' },
+    { label: 'bili : xhs',     value: `${ratio}×`,       foot: 'post volume ratio', accent: true },
+    { label: 'Flagged',        value: M.flagged_posts + M.flagged_comments, foot: `posts ${M.flagged_posts} · cmts ${M.flagged_comments}` },
+  ];
+  document.getElementById('kpis').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.accent ? 'accent' : ''}">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value.toLocaleString ? k.value.toLocaleString() : k.value}</div>
+      <div class="foot">${k.foot}</div>
+    </div>
+  `).join('');
+
+  // ─────── Tabs ───────
+  const TABS = [
+    ['tab-overview','概览','I'],
+    ['tab-foods','美食','II'],
+    ['tab-spots','景点','III'],
+    ['tab-places','店名','IV'],
+    ['tab-comments','评论','V'],
+    ['tab-ads','广告','VI'],
+    ['tab-posts','明细','VII'],
+  ];
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = TABS.map(([id,name,num],i) => `
+    <button role="tab" data-target="${id}" aria-selected="${i===0}">
+      <span class="num">${num}</span>${name}
+    </button>`).join('');
+  tabsEl.addEventListener('click', e => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    tabsEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    document.querySelectorAll('section.panel').forEach(p =>
+      p.classList.toggle('active', p.id === btn.dataset.target));
+    setTimeout(() => Object.values(charts).forEach(c => c.resize()), 250);
+  });
+
+  // ─────── Overview ───────
+  mountChart('chart-source', () => {
+    const t = tokens();
+    return {
+      ...baseOpt({ grid: null, legend: { show: false }}),
+      series: [{
+        type: 'pie',
+        radius: ['52%', '78%'],
+        center: ['50%','50%'],
+        itemStyle: { borderColor: t.isDark ? '#0E0C0A' : '#FBF7EC', borderWidth: 3, borderRadius: 4 },
+        label: {
+          color: t.ink2, fontFamily: "'Fraunces',serif", fontSize: 13,
+          formatter: p => `${p.name}\n{v|${p.value}}`,
+          rich: { v: { color: t.accent, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, padding:[4,0,0,0] } }
+        },
+        labelLine: { lineStyle: { color: t.ink4 } },
+        data: DATA.sources.map(s => ({ name: s.source, value: s.count })),
+      }],
+      title: { text: 'source', left: 20, top: 8, textStyle: { fontSize: 13, color: t.ink3, fontStyle: 'italic' }},
+    };
+  });
+
+  mountChart('chart-keyword', () => {
+    const t = tokens();
+    const data = DATA.keywords.slice(0,10);
+    return {
+      ...baseOpt({ grid: { left: 90, right: 26, top: 28, bottom: 14 } }),
+      xAxis: { type: 'value', axisLine: { show: false }, axisLabel: { show: false }, splitLine: { show: false } },
+      yAxis: {
+        type: 'category',
+        inverse: true,
+        data: data.map(d => d.keyword),
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink2, fontFamily: "'Noto Serif SC',serif", fontSize: 12 }
+      },
+      series: [{
+        type: 'bar',
+        data: data.map(d => d.count),
+        barWidth: 10,
+        itemStyle: {
+          borderRadius: [0,3,3,0],
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+            colorStops: [
+              {offset: 0, color: 'rgba(201,169,97,.25)'},
+              {offset: 1, color: 'var(--gold-2)'.replace('var(--gold-2)', t.accent)},
+            ]
+          }
+        },
+        label: { show: true, position: 'right', color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }
+      }],
+      title: { text: 'by keyword', left: 20, top: 8, textStyle: { fontSize: 13, color: t.ink3, fontStyle: 'italic' }},
+    };
+  });
+
+  mountChart('chart-sankey', () => {
+    const t = tokens();
+    const sk = DATA.source_keyword;
+    const nodes = new Map();
+    sk.forEach(r => {
+      nodes.set(r.source, { name: r.source });
+      nodes.set(r.keyword, { name: r.keyword });
+    });
+    return {
+      ...baseOpt({ grid: null }),
+      series: [{
+        type: 'sankey',
+        left: 20, right: 20, top: 16, bottom: 16,
+        nodeWidth: 10,
+        nodeGap: 10,
+        lineStyle: { color: 'gradient', curveness: .52, opacity: .55 },
+        label: { color: t.ink1, fontFamily: "'Fraunces',serif", fontSize: 13 },
+        data: Array.from(nodes.values()),
+        links: sk.map(r => ({ source: r.source, target: r.keyword, value: r.count })),
+        emphasis: { focus: 'adjacency', lineStyle: { opacity: .9 } },
+      }],
+    };
+  });
+
+  // ─────── Foods ───────
+  mountChart('chart-foods', () => horizontalBar(DATA.foods, 'foods'));
+  // ─────── Spots ───────
+  mountChart('chart-spots', () => horizontalBar(DATA.attractions, 'spots'));
+
+  function horizontalBar(rows, kind) {
+    const t = tokens();
+    const data = rows.slice().reverse();
+    return {
+      ...baseOpt({ grid: { left: 110, right: 40, top: 10, bottom: 20 } }),
+      xAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: t.rule, type: [2,4] } } },
+      yAxis: {
+        type: 'category',
+        data: data.map(d => d.name),
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink1, fontFamily: "'Noto Serif SC',serif", fontSize: 13 }
+      },
+      series: [{
+        type: 'bar',
+        data: data.map(d => d.count),
+        barWidth: 12,
+        itemStyle: {
+          borderRadius: [0,4,4,0],
+          color: (p) => {
+            return new echarts.graphic.LinearGradient(0,0,1,0,[
+              { offset: 0, color: t.isDark ? 'rgba(232,208,149,.18)' : 'rgba(168,135,62,.18)' },
+              { offset: 1, color: t.accent }
+            ]);
+          }
+        },
+        label: {
+          show: true, position: 'right',
+          color: t.ink2, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11,
+          formatter: '{c}'
+        }
+      }]
+    };
+  }
+
+  // ─────── Sentiment diverging bar (好评 vs 差评) ───────
+  function sentimentBar(rows, chartId) {
+    const t = tokens();
+    const data = rows.slice().reverse();
+    return mountChart(chartId, () => ({
+      ...baseOpt({
+        legend: {
+          show: true, top: 4, right: 10,
+          textStyle: { color: t.ink2, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+          itemWidth: 10, itemHeight: 10, itemGap: 18,
+        },
+        grid: { left: 110, right: 60, top: 30, bottom: 20 },
+      }),
+      xAxis: {
+        type: 'value',
+        axisLine: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11,
+          formatter: v => Math.abs(v) },
+        splitLine: { lineStyle: { color: t.rule, type: [2,4] } },
+      },
+      yAxis: {
+        type: 'category',
+        data: data.map(d => d.name),
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink1, fontFamily: "'Noto Serif SC',serif", fontSize: 13 },
+      },
+      series: [
+        {
+          name: '好评',
+          type: 'bar',
+          stack: 'sentiment',
+          data: data.map(d => d.pos),
+          barWidth: 18,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0,0,1,0,[
+              { offset: 0, color: t.isDark ? 'rgba(232,208,149,.18)' : 'rgba(168,135,62,.18)' },
+              { offset: 1, color: t.isDark ? '#E8D095' : '#A8873E' },
+            ]),
+            borderRadius: [0,4,4,0],
+          },
+          label: { show: true, position: 'right', color: t.ink2,
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: 10,
+            formatter: p => p.value > 0 ? p.value : '' },
+        },
+        {
+          name: '差评',
+          type: 'bar',
+          stack: 'sentiment',
+          data: data.map(d => -d.neg),
+          barWidth: 18,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(1,0,0,0,[
+              { offset: 0, color: t.isDark ? 'rgba(122,69,48,.18)' : 'rgba(107,58,34,.18)' },
+              { offset: 1, color: t.isDark ? '#7A4530' : '#6B3A22' },
+            ]),
+            borderRadius: [4,0,0,4],
+          },
+          label: { show: true, position: 'left', color: t.ink2,
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: 10,
+            formatter: p => p.value < 0 ? Math.abs(p.value) : '' },
+        },
+      ],
+      tooltip: {
+        trigger: 'axis', axisPointer: { type: 'shadow' },
+        formatter: params => {
+          const name = params[0].name;
+          const pos = params.find(p => p.seriesName === '好评');
+          const neg = params.find(p => p.seriesName === '差评');
+          return `<b>${name}</b><br/>好评: ${pos ? pos.value : 0}<br/>差评: ${neg ? Math.abs(neg.value) : 0}`;
+        },
+      },
+    }));
+  }
+
+  if (DATA.foods_sentiment) sentimentBar(DATA.foods_sentiment, 'chart-foods-sent');
+  if (DATA.attractions_sentiment) sentimentBar(DATA.attractions_sentiment, 'chart-spots-sent');
+  if (DATA.places_sentiment) sentimentBar(DATA.places_sentiment, 'chart-places-sent');
+
+  // ─────── NSS ranking bar (差评率 + Wilson Score) ───────
+  function nssBar(rows, chartId) {
+    if (!rows || !rows.length) return;
+    // 按 NSS 从低（差）到高（好）排序
+    const sorted = rows.slice()
+      .filter(d => (d.pos + d.neg) > 0)
+      .sort((a, b) => b.nss - a.nss);  // 最好的在上面，最差在下面
+    if (!sorted.length) return;
+
+    mountChart(chartId, () => {
+      const t = tokens();
+      // 相对映射：按本组 min/max 做「氧化铜 → 抛光金」渐变
+      const vals = sorted.map(d => d.nss);
+      const minV = Math.min(...vals);
+      const maxV = Math.max(...vals);
+      const rangeV = maxV - minV || 0.01;
+      // dark: 暗铜 #7A4530 → 琥珀 #C49450 → 香槟金 #E8D095
+      // light: 暗铜 #6B3A22 → 青铜 #8C6D2C → 金 #C9A961
+      const stops = t.isDark
+        ? [[122,69,48], [196,148,80], [232,208,149]]
+        : [[107,58,34], [140,109,44], [201,169,97]];
+      function nssColor(val) {
+        const p = (val - minV) / rangeV; // 0=本组最差, 1=最好
+        let r, g, b;
+        if (p <= 0.5) {
+          const q = p / 0.5;
+          r = stops[0][0] + (stops[1][0]-stops[0][0])*q;
+          g = stops[0][1] + (stops[1][1]-stops[0][1])*q;
+          b = stops[0][2] + (stops[1][2]-stops[0][2])*q;
+        } else {
+          const q = (p - 0.5) / 0.5;
+          r = stops[1][0] + (stops[2][0]-stops[1][0])*q;
+          g = stops[1][1] + (stops[2][1]-stops[1][1])*q;
+          b = stops[1][2] + (stops[2][2]-stops[1][2])*q;
+        }
+        return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+      }
+
+      return {
+        ...baseOpt({
+          grid: { left: 110, right: 80, top: 10, bottom: 20 },
+        }),
+        xAxis: {
+          type: 'value',
+          min: -1, max: 1,
+          axisLine: { show: true, lineStyle: { color: t.rule } },
+          axisLabel: {
+            color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11,
+            formatter: v => v.toFixed(1),
+          },
+          splitLine: { lineStyle: { color: t.rule, type: [2,4] } },
+        },
+        yAxis: {
+          type: 'category',
+          data: sorted.map(d => d.name),
+          inverse: true,
+          axisLine: { show: false }, axisTick: { show: false },
+          axisLabel: { color: t.ink1, fontFamily: "'Noto Serif SC',serif", fontSize: 13 },
+        },
+        series: [{
+          type: 'bar',
+          data: sorted.map(d => {
+            const solid = nssColor(d.nss);
+            // 半透明起点 → 实色终点，模拟金属光泽
+            const fade = solid.replace('rgb(', 'rgba(').replace(')', ',.18)');
+            return {
+              value: d.nss,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(
+                  d.nss >= 0 ? 0 : 1, 0, d.nss >= 0 ? 1 : 0, 0,
+                  [{ offset: 0, color: fade }, { offset: 1, color: solid }]
+                ),
+                borderRadius: d.nss >= 0 ? [0,4,4,0] : [4,0,0,4],
+              },
+              _raw: d,
+            };
+          }),
+          barWidth: 16,
+          label: {
+            show: true,
+            position: 'right',
+            color: t.ink2,
+            fontFamily: "'IBM Plex Mono',monospace",
+            fontSize: 10,
+            formatter: p => {
+              const v = p.value;
+              return (v >= 0 ? '+' : '') + v.toFixed(2);
+            },
+          },
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            lineStyle: { color: t.ink4, type: 'dashed', width: 1 },
+            data: [{ xAxis: 0 }],
+            label: { show: false },
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: params => {
+            const p = params[0];
+            const d = p.data._raw;
+            if (!d) return '';
+            const nr = (d.neg_ratio * 100).toFixed(1);
+            const wn = (d.wilson_neg * 100).toFixed(1);
+            return [
+              `<b style="font-family:'Noto Serif SC',serif;font-size:14px">${esc(d.name)}</b>`,
+              `<span style="color:${nssColor(d.nss)}">NSS: ${d.nss >= 0 ? '+' : ''}${d.nss.toFixed(3)}</span>`,
+              `差评率: ${nr}%`,
+              `Wilson 置信下界: ${wn}%`,
+              `<span style="color:#E8D095">好评 ${d.pos}</span> · <span style="color:#7A4530">差评 ${d.neg}</span> · 总提及 ${d.total}`,
+            ].join('<br/>');
+          },
+          backgroundColor: tokens().isDark ? 'rgba(20,18,16,.95)' : 'rgba(255,253,245,.97)',
+          borderColor: tokens().accent,
+          borderWidth: 1,
+          textStyle: { color: tokens().ink1, fontFamily: "'Inter Tight',sans-serif", fontSize: 12 },
+          extraCssText: 'backdrop-filter:blur(10px);box-shadow:0 18px 40px -16px rgba(0,0,0,.4);padding:10px 12px;border-radius:10px;',
+        },
+      };
+    });
+  }
+
+  if (DATA.foods_sentiment) nssBar(DATA.foods_sentiment, 'chart-foods-nss');
+  if (DATA.attractions_sentiment) nssBar(DATA.attractions_sentiment, 'chart-spots-nss');
+  if (DATA.places_sentiment) nssBar(DATA.places_sentiment, 'chart-places-nss');
+
+  // co-occur table
+  document.getElementById('table-cooccur').innerHTML = tableHtml(
+    ['A','B','Co-mentions'],
+    DATA.cooccur.map(r => [
+      `<span class="name">${esc(r.source)}</span>`,
+      `<span class="name">${esc(r.target)}</span>`,
+      `<span class="score">${r.value}</span>`
+    ]),
+    [null, null, 'num']
+  ) || emptyHtml('共同提及未达到阈值 (≥2)。');
+
+  // ─────── Places ───────
+  const placeMax = Math.max(...DATA.places.map(p => p.count), 1);
+  document.getElementById('list-places').innerHTML = DATA.places.map((p, i) => `
+    <li>
+      <span class="rank">${String(i+1).padStart(2,'0')}</span>
+      <span class="name">${esc(p.name)}</span>
+      <span class="cnt">${p.count}</span>
+    </li>
+  `).join('');
+
+  // ─────── Comments histogram ───────
+  mountChart('chart-hist', () => {
+    const t = tokens();
+    const H = DATA.length_hist;
+    return {
+      ...baseOpt({ legend: {
+        show: true, top: 4, right: 10,
+        textStyle: { color: t.ink2, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        itemWidth: 10, itemHeight: 10, itemGap: 18,
+      }}),
+      xAxis: {
+        type: 'category', data: H.labels,
+        axisLine: { lineStyle: { color: t.rule } }, axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, rotate: 0 }
+      },
+      yAxis: {
+        type: 'value',
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        splitLine: { lineStyle: { color: t.rule, type: [2,4] } }
+      },
+      series: [
+        {
+          name: 'bili', type: 'bar', data: H.bili, barGap: '10%', barWidth: 14,
+          itemStyle: { color: t.isDark ? '#88B8D9' : '#4E7FA8', borderRadius: [4,4,0,0] }
+        },
+        {
+          name: 'xhs', type: 'bar', data: H.xhs, barWidth: 14,
+          itemStyle: {
+            borderRadius: [4,4,0,0],
+            color: new echarts.graphic.LinearGradient(0,0,0,1,[
+              { offset: 0, color: t.accent },
+              { offset: 1, color: t.isDark ? 'rgba(168,135,62,.35)' : 'rgba(140,109,44,.35)' }
+            ])
+          }
+        },
+      ]
+    };
+  });
+
+  const stats = DATA.length_stats;
+  const statRows = [];
+  ['bili','xhs'].forEach(src => {
+    const s = stats[src]; if (!s) return;
+    statRows.push([
+      `<span class="chip ${src}">${src}</span>`,
+      s.n, s.min, s.median.toFixed ? s.median.toFixed(0) : s.median,
+      s.p90, s.max, s.mean.toFixed(1)
+    ]);
+  });
+  document.getElementById('table-stats').innerHTML = tableHtml(
+    ['Platform','n','min','median','p90','max','mean'],
+    statRows,
+    [null,'num','num','num','num','num','num']
+  );
+
+  // density: median and p90 compared
+  mountChart('chart-density', () => {
+    const t = tokens();
+    const bili = stats.bili, xhs = stats.xhs;
+    if (!bili || !xhs) return baseOpt();
+    return {
+      ...baseOpt({ grid: { left: 70, right: 40, top: 20, bottom: 30 } }),
+      xAxis: { type: 'value', axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace" }, splitLine: { lineStyle: { color: t.rule, type: [2,4] } } },
+      yAxis: {
+        type: 'category', data: ['median','p90','mean'],
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink2, fontFamily: "'Fraunces',serif", fontSize: 13, fontStyle: 'italic' }
+      },
+      series: [
+        { name: 'bili', type: 'bar', barGap: '10%', barWidth: 12,
+          data: [bili.median, bili.p90, bili.mean.toFixed(1)*1],
+          itemStyle: { color: t.isDark ? '#88B8D9' : '#4E7FA8', borderRadius: [0,3,3,0] },
+          label: { show: true, position: 'right', color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5 }},
+        { name: 'xhs', type: 'bar', barWidth: 12,
+          data: [xhs.median, xhs.p90, xhs.mean.toFixed(1)*1],
+          itemStyle: { color: t.accent, borderRadius: [0,3,3,0] },
+          label: { show: true, position: 'right', color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5 }},
+      ],
+      legend: { show: true, top: 0, right: 10,
+        textStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }}
+    };
+  });
+
+  // ─────── Ads ───────
+  mountChart('chart-ads', () => {
+    const t = tokens();
+    const posts = DATA.ad_posts.map(r => ({
+      value: [r.ad_score, r.likes + r.comments_count, r.title, r.source],
+      symbolSize: Math.min(26, 8 + Math.log10((r.likes+1)) * 4),
+    }));
+    const cmts = DATA.ad_comments.map(r => ({
+      value: [r.ad_score, r.likes, r.preview, r.source],
+      symbolSize: Math.min(20, 7 + (r.likes ? Math.log10(r.likes+1)*3 : 0)),
+    }));
+    return {
+      ...baseOpt({ grid: { left: 50, right: 30, top: 30, bottom: 40 } }),
+      xAxis: { type: 'value', name: 'ad score', nameLocation: 'middle', nameGap: 26,
+        nameTextStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 } },
+      yAxis: { type: 'value', name: 'reach (likes+cmts)', nameLocation: 'middle', nameGap: 40, nameRotate: 90,
+        nameTextStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 } },
+      tooltip: {
+        ...baseOpt().tooltip,
+        formatter: p => `<div style="max-width:320px;font-family:'Fraunces',serif"><em>${p.value[3]}</em> · score ${p.value[0]}<br>${esc(p.value[2]||'')}</div>`
+      },
+      legend: { top: 0, right: 10, textStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }},
+      series: [
+        { name: 'posts', type: 'scatter', data: posts,
+          itemStyle: { color: t.accent, opacity: .75, shadowColor: 'rgba(201,169,97,.5)', shadowBlur: 6 }},
+        { name: 'comments', type: 'scatter', data: cmts,
+          itemStyle: { color: t.isDark ? '#E08B6F' : '#9E4E2E', opacity: .55 } }
+      ]
+    };
+  });
+
+  const adKind = document.getElementById('ad-kind');
+  function renderAdTable() {
+    const kind = adKind.value;
+    if (kind === 'posts') {
+      const rows = DATA.ad_posts.map(r => [
+        `<span class="chip ${r.source}">${r.source}</span>`,
+        esc(r.keyword),
+        `<span class="title">${esc(r.title)}</span>`,
+        `<span class="score ${r.ad_score>=6?'hi':''}">${r.ad_score}</span>`,
+        esc(r.hits)
+      ]);
+      document.getElementById('table-ads').innerHTML = tableHtml(
+        ['Src','Keyword','Title','Score','Signals'], rows, [null,null,null,'num',null]
+      ) || emptyHtml('暂无可疑帖子。');
+    } else {
+      const rows = DATA.ad_comments.map(r => [
+        `<span class="chip ${r.source}">${r.source}</span>`,
+        `<span class="preview">${esc(r.preview)}</span>`,
+        `<span class="score ${r.ad_score>=6?'hi':''}">${r.ad_score}</span>`,
+        esc(r.hits)
+      ]);
+      document.getElementById('table-ads').innerHTML = tableHtml(
+        ['Src','Preview','Score','Signals'], rows, [null,null,'num',null]
+      ) || emptyHtml('暂无可疑评论。');
+    }
+  }
+  adKind.addEventListener('change', renderAdTable);
+  renderAdTable();
+
+  // ─────── Posts table ───────
+  const uniqSources = [...new Set(DATA.posts_table.map(p => p.source))];
+  const uniqKeywords = [...new Set(DATA.posts_table.map(p => p.keyword).filter(Boolean))];
+  document.getElementById('f-source').insertAdjacentHTML('beforeend',
+    uniqSources.map(s => `<option value="${s}">${s}</option>`).join(''));
+  document.getElementById('f-keyword').insertAdjacentHTML('beforeend',
+    uniqKeywords.map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join(''));
+
+  ['f-source','f-keyword','f-search'].forEach(id =>
+    document.getElementById(id).addEventListener('input', renderPostsTable));
+
+  function renderPostsTable() {
+    const s = document.getElementById('f-source').value;
+    const k = document.getElementById('f-keyword').value;
+    const q = document.getElementById('f-search').value.trim().toLowerCase();
+    const maxL = Math.max(...DATA.posts_table.map(p => p.likes), 1);
+    const rows = DATA.posts_table
+      .filter(p => (!s || p.source===s) && (!k || p.keyword===k) && (!q || (p.title||'').toLowerCase().includes(q)))
+      .map(p => [
+        `<span class="chip ${p.source}">${p.source}</span>`,
+        esc(p.keyword),
+        `<span class="title">${esc(p.title)}</span>`,
+        `<div class="bar" style="width:90px"><span style="width:${Math.min(100, p.likes/maxL*100)}%"></span></div><span class="num" style="font-family:var(--font-mono);color:var(--ink-3);font-size:11px;margin-left:6px">${p.likes}</span>`,
+        p.comments,
+        `<span class="score ${p.ad_score>=6?'hi':''}">${p.ad_score}</span>`,
+      ]);
+    document.getElementById('table-posts').innerHTML = tableHtml(
+      ['Src','Keyword','Title','Likes','Cmts','Ad'], rows, [null,null,null,null,'num','num']
+    ) || emptyHtml('没有匹配的记录。');
+  }
+  renderPostsTable();
+
+  // ─────── helpers ───────
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function tableHtml(heads, rows, classes) {
+    if (!rows.length) return '';
+    const ths = heads.map((h,i) => `<th class="${classes && classes[i] || ''}">${h}</th>`).join('');
+    const trs = rows.map(r =>
+      '<tr>' + r.map((c,i) => `<td class="${classes && classes[i] || ''}">${c}</td>`).join('') + '</tr>'
+    ).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+  }
+  function emptyHtml(msg) {
+    return `<div style="padding:40px 20px;text-align:center;font-family:var(--font-serif);font-style:italic;color:var(--ink-4)">${msg}</div>`;
+  }
+})();
+</script>
+</body>
+</html>

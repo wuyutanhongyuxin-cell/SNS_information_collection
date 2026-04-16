@@ -1,0 +1,11 @@
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+raw/
+logs/
+.env
+__pycache__/
+*.pyc
+.venv/
+.streamlit/
+.claude/

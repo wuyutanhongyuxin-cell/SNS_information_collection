@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Xi'an Discourse Corpus — Editorial Report</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter+Tight:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+
+<style>
+/* ────────────────────── design tokens ────────────────────── */
+:root {
+  --gold-1: #D9BD7E;
+  --gold-2: #C9A961;
+  --gold-3: #A8873E;
+  --gold-4: #8C6D2C;
+  --gold-hair: rgba(201, 169, 97, 0.22);
+  --gold-highlight: rgba(233, 208, 150, 0.58);
+
+  --metal:
+    linear-gradient(135deg,
+      #6d5a2a 0%,
+      #a8873e 10%,
+      #e8d095 28%,
+      #fff5d8 46%,
+      #e8d095 58%,
+      #a8873e 78%,
+      #6d5a2a 100%);
+  --metal-hair:
+    linear-gradient(90deg,
+      rgba(169,135,62,0) 0%,
+      rgba(233,208,150,.9) 40%,
+      rgba(255,245,216,1) 50%,
+      rgba(233,208,150,.9) 60%,
+      rgba(169,135,62,0) 100%);
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow-deep: 0 30px 60px -20px rgba(0,0,0,.55), 0 2px 0 0 rgba(255,255,255,.04) inset;
+
+  --font-serif: 'Fraunces', 'Noto Serif SC', Georgia, serif;
+  --font-sans: 'Inter Tight', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+
+  --dur-1: .18s;
+  --dur-2: .42s;
+  --ease: cubic-bezier(.2,.7,.15,1);
+}
+
+:root[data-theme='dark'] {
+  --bg-0: #070605;
+  --bg-1: #0E0C0A;
+  --bg-2: #141210;
+  --panel: rgba(255, 251, 238, 0.035);
+  --panel-hi: rgba(255, 251, 238, 0.06);
+  --panel-border: rgba(255, 245, 216, .09);
+  --panel-inset: rgba(255, 245, 216, .08);
+  --ink-1: #F4ECD8;
+  --ink-2: #D9CFB8;
+  --ink-3: #9A9281;
+  --ink-4: #5C564B;
+  --rule: rgba(255, 245, 216, 0.08);
+  --accent: var(--gold-2);
+  --accent-soft: rgba(201, 169, 97, 0.18);
+  --danger: #E08B6F;
+  --ok: #8EBFA2;
+
+  --grid-bg:
+    radial-gradient(ellipse 1200px 700px at 80% -10%, rgba(201,169,97,.09), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 10% 110%, rgba(201,169,97,.05), transparent 60%),
+    linear-gradient(180deg, #0a0806 0%, #070605 60%, #050403 100%);
+}
+
+:root[data-theme='light'] {
+  --bg-0: #F6F1E4;
+  --bg-1: #FBF7EC;
+  --bg-2: #FFFDF5;
+  --panel: rgba(255, 252, 242, 0.78);
+  --panel-hi: rgba(255, 252, 242, 0.92);
+  --panel-border: rgba(80, 60, 30, .11);
+  --panel-inset: rgba(255, 255, 255, .9);
+  --ink-1: #1A1510;
+  --ink-2: #3A2F22;
+  --ink-3: #6B5C45;
+  --ink-4: #9D8D6F;
+  --rule: rgba(80, 60, 30, .12);
+  --accent: var(--gold-4);
+  --accent-soft: rgba(140, 109, 44, 0.14);
+  --danger: #9E4E2E;
+  --ok: #3E7A54;
+
+  --grid-bg:
+    radial-gradient(ellipse 1200px 700px at 80% -10%, rgba(201,169,97,.22), transparent 65%),
+    radial-gradient(ellipse 900px 500px at 5% 110%, rgba(169,135,62,.14), transparent 65%),
+    linear-gradient(180deg, #FBF7EC 0%, #F6F1E4 55%, #EDE6D2 100%);
+}
+
+/* ────────────────────── base ────────────────────── */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-1);
+  background: var(--grid-bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'ss02', 'cv11', 'tnum';
+  letter-spacing: .005em;
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: .6;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 0;
+}
+:root[data-theme='light'] body::before { opacity: .35; mix-blend-mode: multiply; }
+
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--accent); }
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 48px 44px 80px;
+}
+
+/* ────────────────────── header ────────────────────── */
+header.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+header.top::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px; height: 1px;
+  background: var(--metal-hair);
+  opacity: .42;
+}
+.brand {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.brand .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 12px;
+}
+.brand .eyebrow::before {
+  content: ""; width: 26px; height: 1px; background: var(--accent);
+}
+.brand h1 {
+  margin: 2px 0 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(40px, 4.2vw, 62px);
+  letter-spacing: -0.015em;
+  line-height: .98;
+  color: var(--ink-1);
+  font-variation-settings: "opsz" 120;
+}
+.brand h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+  font-variation-settings: "opsz" 144;
+}
+.brand .sub {
+  margin-top: 14px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 16px;
+  color: var(--ink-3);
+  max-width: 540px;
+}
+
+.meta-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+.meta-right .gen {
+  display: flex; align-items: center; gap: 10px;
+}
+.meta-right .gen .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: .8; }
+  50% { opacity: .25; }
+}
+
+/* theme switch — crown knob */
+.theme-toggle {
+  position: relative;
+  width: 72px; height: 32px;
+  border-radius: 32px;
+  padding: 2px;
+  cursor: pointer;
+  background: var(--metal);
+  box-shadow:
+    0 1px 0 rgba(255,245,216,.55) inset,
+    0 -1px 0 rgba(0,0,0,.45) inset,
+    0 8px 22px -6px rgba(0,0,0,.6);
+  border: none;
+  outline: none;
+  transition: filter var(--dur-1) var(--ease);
+}
+.theme-toggle:hover { filter: brightness(1.08); }
+.theme-toggle .knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #1a1812 0%, #050403 60%, #000 100%);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.5),
+    0 0 0 1px rgba(0,0,0,.5),
+    0 1px 0 rgba(255,245,216,.3) inset;
+  transition: transform var(--dur-2) var(--ease);
+  display: grid; place-items: center;
+  color: var(--gold-1);
+  font-size: 10px;
+}
+:root[data-theme='light'] .theme-toggle .knob {
+  transform: translateX(40px);
+  background: radial-gradient(circle at 30% 30%, #fffbe8 0%, #e8d095 60%, #a8873e 100%);
+  color: #3A2F22;
+}
+
+/* ────────────────────── hero KPI ────────────────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  margin: 40px 0 32px;
+}
+.kpi {
+  position: relative;
+  padding: 22px 22px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid var(--panel-border);
+  box-shadow:
+    0 1px 0 var(--panel-inset) inset,
+    0 -1px 0 rgba(0,0,0,.12) inset,
+    0 20px 50px -24px rgba(0,0,0,.55);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--dur-1) var(--ease);
+}
+.kpi::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,245,216,.06), transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+.kpi::after {
+  content: "";
+  position: absolute; top: 0; left: -60%;
+  width: 60%; height: 100%;
+  background: linear-gradient(110deg, transparent 20%, rgba(255,245,216,.18) 50%, transparent 80%);
+  transform: translateX(0);
+  transition: transform .9s var(--ease);
+  pointer-events: none;
+}
+.kpi:hover::after { transform: translateX(340%); }
+.kpi:hover { transform: translateY(-2px); }
+.kpi .label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.kpi .label::before {
+  content: "";
+  width: 14px; height: 1px; background: var(--accent); opacity: .7;
+}
+.kpi .value {
+  font-family: var(--font-serif);
+  font-variation-settings: "opsz" 144;
+  font-weight: 400;
+  font-size: 54px;
+  line-height: 1.02;
+  margin: 8px 0 2px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--ink-1) 0%, var(--ink-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.kpi.accent .value {
+  background: var(--metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.35));
+}
+.kpi .foot {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* ────────────────────── tabs ────────────────────── */
+nav.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 1px 0 var(--panel-inset) inset;
+  margin-bottom: 28px;
+  overflow-x: auto;
+}
+nav.tabs button {
+  flex: 1;
+  min-width: 98px;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: .02em;
+  border-radius: 9px;
+  position: relative;
+  transition: color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+nav.tabs button .num {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-4);
+  letter-spacing: .08em;
+}
+nav.tabs button:hover { color: var(--ink-1); background: var(--panel-hi); }
+nav.tabs button[aria-selected='true'] {
+  color: var(--ink-1);
+  background: var(--panel-hi);
+  box-shadow:
+    0 1px 0 var(--panel-inset) inset,
+    0 -1px 0 rgba(0,0,0,.1) inset,
+    0 6px 18px -10px rgba(0,0,0,.45);
+}
+nav.tabs button[aria-selected='true']::after {
+  content: "";
+  position: absolute; left: 22%; right: 22%; bottom: 3px; height: 1.5px;
+  background: var(--metal-hair);
+  border-radius: 2px;
+}
+
+/* ────────────────────── section / card ────────────────────── */
+section.panel { display: none; animation: fadeUp var(--dur-2) var(--ease); }
+section.panel.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+.grid.g2 { grid-template-columns: 1.2fr .8fr; }
+.grid.g2-e { grid-template-columns: 1fr 1fr; }
+.grid.g3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.card {
+  position: relative;
+  padding: 22px 24px;
+  border-radius: var(--radius-xl);
+  background: var(--panel);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid var(--panel-border);
+  box-shadow:
+    0 1px 0 var(--panel-inset) inset,
+    0 -1px 0 rgba(0,0,0,.12) inset,
+    var(--shadow-deep);
+  overflow: hidden;
+}
+.card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--metal-hair);
+  opacity: .5;
+}
+
+.card h3 {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-variation-settings: "opsz" 72;
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  color: var(--ink-1);
+}
+.card h3 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+.card .caption {
+  margin: 0 0 18px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-3);
+  max-width: 70ch;
+}
+
+.chart { width: 100%; height: 360px; }
+.chart.sm { height: 260px; }
+.chart.lg { height: 440px; }
+
+/* ────────────────────── tables ────────────────────── */
+.table-wrap {
+  margin: 6px -6px -6px;
+  padding: 2px 6px;
+  max-height: 520px;
+  overflow: auto;
+  border-radius: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-soft) transparent;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table thead th {
+  position: sticky; top: 0;
+  background: var(--panel-hi);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 12px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--rule);
+}
+table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px dashed var(--rule);
+  color: var(--ink-2);
+  vertical-align: top;
+}
+table tbody tr:hover td { background: var(--panel-hi); color: var(--ink-1); }
+td.num, th.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+td.title {
+  max-width: 560px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--ink-1);
+}
+td.preview {
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  color: var(--ink-2);
+  font-style: italic;
+}
+
+/* chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--ink-2);
+}
+.chip.bili { color: #88B8D9; border-color: rgba(136,184,217,.28); }
+.chip.xhs  { color: #E08B8B; border-color: rgba(224,139,139,.28); }
+.chip.gold {
+  color: #2A2010;
+  background: var(--metal);
+  border: none;
+  box-shadow: 0 1px 0 rgba(255,245,216,.6) inset, 0 -1px 0 rgba(0,0,0,.3) inset;
+}
+:root[data-theme='dark'] .chip.gold { color: #1a140a; }
+
+.score {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.score.hi { background: rgba(224,139,111,.16); color: var(--danger); }
+
+/* pill bars inline */
+.bar {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  overflow: hidden;
+}
+.bar > span {
+  display: block;
+  height: 100%;
+  background: var(--metal);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.12) inset;
+}
+
+/* two-column list */
+ul.plain {
+  list-style: none; margin: 0; padding: 0;
+  columns: 2; column-gap: 28px;
+}
+ul.plain li {
+  display: grid;
+  grid-template-columns: 22px 1fr 42px;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--rule);
+  break-inside: avoid;
+}
+ul.plain li .rank {
+  font-family: var(--font-mono);
+  color: var(--ink-4);
+  font-size: 11px;
+  text-align: right;
+}
+ul.plain li .name {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--ink-1);
+}
+ul.plain li .cnt {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--accent);
+  text-align: right;
+}
+
+/* filter bar */
+.filters {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 18px;
+}
+.filters select, .filters input {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--ink-1);
+  outline: none;
+  min-width: 160px;
+}
+.filters select:focus, .filters input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* footer */
+footer {
+  margin-top: 52px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  position: relative;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+footer::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+  background: var(--metal-hair); opacity: .38;
+}
+footer .colophon {
+  font-family: var(--font-serif);
+  font-style: italic;
+  letter-spacing: 0;
+  font-size: 12.5px;
+  text-transform: none;
+  color: var(--ink-3);
+  max-width: 60ch;
+}
+
+/* responsive */
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(3, 1fr); }
+  .grid.g2, .grid.g2-e, .grid.g3 { grid-template-columns: 1fr; }
+  .brand h1 { font-size: 44px; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 28px 20px 60px; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  header.top { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .meta-right { align-items: flex-start; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Xi'an Discourse Corpus · Volume I</div>
+    <h1>City of <em>Silk &amp; Smoke</em></h1>
+    <div class="sub">An editorial index of what Bilibili &amp; Xiaohongshu say about Xi'an — places named, dishes ranked, sentiment decoded.</div>
+  </div>
+  <div class="meta-right">
+    <div class="gen"><span class="dot"></span><span id="gen-time">—</span></div>
+    <div><span id="gen-summary">—</span></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <span class="knob" id="knob-icon">◐</span>
+    </button>
+  </div>
+</header>
+
+<!-- KPI -->
+<section class="kpis" id="kpis"></section>
+
+<!-- Tabs -->
+<nav class="tabs" id="tabs" role="tablist"></nav>
+
+<!-- Overview -->
+<section class="panel active" id="tab-overview">
+  <div class="grid g2">
+    <div class="card">
+      <h3>Corpus <em>at a glance</em></h3>
+      <p class="caption">帖子在两个平台上的分布，以及关键词之间的流向。带子图展示 source × keyword 的体量对比。</p>
+      <div class="chart" id="chart-sankey"></div>
+    </div>
+    <div class="card">
+      <h3>Platforms <em>by volume</em></h3>
+      <p class="caption">小红书样本少但评论密度极高；Bilibili 帖子多但单帖讨论浅。</p>
+      <div class="chart sm" id="chart-source"></div>
+      <div class="chart sm" id="chart-keyword"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Foods -->
+<section class="panel" id="tab-foods">
+  <div class="grid g2">
+    <div class="card">
+      <h3>The <em>Edible</em> Canon</h3>
+      <p class="caption">按提及次数排序的西安食物 — 从街头的肉夹馍到宴席上的葫芦鸡。</p>
+      <div class="chart lg" id="chart-foods"></div>
+    </div>
+    <div class="card">
+      <h3>Sentiment <em>split</em></h3>
+      <p class="caption">好评(金) vs 差评(铜) — 基于知网HowNet 8,800+ 情感词典 + jieba 分词 + 否定翻转。</p>
+      <div class="chart lg" id="chart-foods-sent"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Net Sentiment <em>Score</em></h3>
+    <p class="caption">NSS = (好评−差评)/(好评+差评)，范围 [−1, +1]。越亮（香槟金）口碑越稳，越暗（氧化铜）争议越大。Hover 查看差评率与 Wilson 置信分。</p>
+    <div class="chart lg" id="chart-foods-nss"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Co-mentions</h3>
+    <p class="caption">同一段文本中共同出现的 食物 × 景点 组合（≥2 次）。</p>
+    <div class="table-wrap" id="table-cooccur"></div>
+  </div>
+</section>
+
+<!-- Spots -->
+<section class="panel" id="tab-spots">
+  <div class="grid g2">
+    <div class="card">
+      <h3>The <em>Pilgrimage</em> Ledger</h3>
+      <p class="caption">从钟楼到兵马俑 — 所有被提及的地标按出现频次排名。</p>
+      <div class="chart lg" id="chart-spots"></div>
+    </div>
+    <div class="card">
+      <h3>Sentiment <em>split</em></h3>
+      <p class="caption">景点在好评 vs 差评文本中的出现次数对比。</p>
+      <div class="chart lg" id="chart-spots-sent"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Net Sentiment <em>Score</em></h3>
+    <p class="caption">NSS = (好评−差评)/(好评+差评)。越亮（香槟金）口碑越稳，越暗（氧化铜）争议越大。Hover 查看详情。</p>
+    <div class="chart lg" id="chart-spots-nss"></div>
+  </div>
+</section>
+
+<!-- Places / 店名 -->
+<section class="panel" id="tab-places">
+  <div class="grid g2">
+    <div class="card">
+      <h3>Candidate <em>storefronts</em></h3>
+      <p class="caption">通过 jieba + 自定义词典抽取的候选店名。</p>
+      <ul class="plain" id="list-places"></ul>
+    </div>
+    <div class="card">
+      <h3>Sentiment <em>split</em></h3>
+      <p class="caption">店名在好评 vs 差评文本中的出现次数对比。</p>
+      <div class="chart lg" id="chart-places-sent"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Net Sentiment <em>Score</em></h3>
+    <p class="caption">NSS = (好评−差评)/(好评+差评)。越亮（香槟金）口碑越稳，越暗（氧化铜）争议越大。Hover 查看详情。</p>
+    <div class="chart lg" id="chart-places-nss"></div>
+  </div>
+</section>
+
+<!-- Comments length -->
+<section class="panel" id="tab-comments">
+  <div class="grid g2-e">
+    <div class="card">
+      <h3>Depth of <em>discourse</em></h3>
+      <p class="caption">评论长度的分布直方图。xhs 有明显长尾，bili 集中在短评。</p>
+      <div class="chart lg" id="chart-hist"></div>
+    </div>
+    <div class="card">
+      <h3>Statistical <em>signatures</em></h3>
+      <p class="caption">两个平台的五数概括 — 中位数、90 分位、均值、极值。</p>
+      <div class="table-wrap" id="table-stats"></div>
+      <div class="chart sm" id="chart-density" style="margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Ads -->
+<section class="panel" id="tab-ads">
+  <div class="grid g2-e">
+    <div class="card">
+      <h3>Ad <em>suspicion</em> spectrum</h3>
+      <p class="caption">按广告分（关键词、链接、emoji 密度、字符重复）散点。右上象限多为硬广嫌疑。</p>
+      <div class="chart lg" id="chart-ads"></div>
+    </div>
+    <div class="card">
+      <h3>Flagged specimens</h3>
+      <p class="caption">评分 ≥ 3 的帖子/评论样例。</p>
+      <div class="filters">
+        <select id="ad-kind">
+          <option value="posts">帖子</option>
+          <option value="comments">评论</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="table-ads"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Posts table -->
+<section class="panel" id="tab-posts">
+  <div class="card">
+    <h3>The <em>raw</em> ledger</h3>
+    <p class="caption">全部帖子（按评论量排序，前 200 条）。可按平台和关键词筛选。</p>
+    <div class="filters">
+      <select id="f-source"><option value="">全部平台</option></select>
+      <select id="f-keyword"><option value="">全部关键词</option></select>
+      <input id="f-search" placeholder="搜索标题…" />
+    </div>
+    <div class="table-wrap" id="table-posts"></div>
+  </div>
+</section>
+
+<footer>
+  <div>XDC · 2026 · Editorial Data Report</div>
+  <div class="colophon">Set in Fraunces, Inter Tight, IBM Plex Mono &amp; Noto Serif SC. Charts powered by ECharts. Colors distilled from champagne gold.</div>
+</footer>
+
+</div>
+
+<script id="data-json" type="application/json">
+{"meta":{"generated_at":"2026-04-16 21:14","posts_total":768,"comments_total":27753,"keywords_total":20,"flagged_posts":6,"flagged_comments":48,"sentiment_pos":14310,"sentiment_neg":5609,"sentiment_neu":8602},"sources":[{"source":"bili","count":721},{"source":"xhs","count":47}],"keywords":[{"keyword":"西安 避雷","count":65},{"keyword":"西安 行程","count":62},{"keyword":"西安 美食","count":60},{"keyword":"西安 攻略","count":55},{"keyword":"西安 住宿","count":52},{"keyword":"西安 美食 踩雷","count":39},{"keyword":"西安 夜市 小吃","count":36},{"keyword":"西安 洒金桥 美食","count":34},{"keyword":"西安 兵马俑 攻略","count":34},{"keyword":"西安 城墙","count":34},{"keyword":"西安 回民街 美食","count":33},{"keyword":"西安 凉皮","count":33},{"keyword":"西安 大唐不夜城","count":33},{"keyword":"五一 西安 旅游","count":33},{"keyword":"西安 烤肉 推荐","count":32},{"keyword":"西安 泡馍","count":32},{"keyword":"西安 肉夹馍","count":31},{"keyword":"西安 华清宫 长恨歌","count":27},{"keyword":"西安 三日游","count":25},{"keyword":"西安 自由行 攻略","count":18}],"source_keyword":[{"source":"bili","keyword":"西安 避雷","count":56},{"source":"bili","keyword":"西安 行程","count":55},{"source":"bili","keyword":"西安 美食","count":50},{"source":"bili","keyword":"西安 攻略","count":46},{"source":"bili","keyword":"西安 住宿","count":43},{"source":"bili","keyword":"西安 美食 踩雷","count":36},{"source":"bili","keyword":"西安 夜市 小吃","count":36},{"source":"bili","keyword":"西安 洒金桥 美食","count":34},{"source":"bili","keyword":"西安 兵马俑 攻略","count":34},{"source":"bili","keyword":"西安 城墙","count":34},{"source":"bili","keyword":"西安 回民街 美食","count":33},{"source":"bili","keyword":"西安 凉皮","count":33},{"source":"bili","keyword":"西安 大唐不夜城","count":33},{"source":"bili","keyword":"五一 西安 旅游","count":33},{"source":"bili","keyword":"西安 烤肉 推荐","count":32},{"source":"bili","keyword":"西安 泡馍","count":32},{"source":"bili","keyword":"西安 肉夹馍","count":31},{"source":"bili","keyword":"西安 华清宫 长恨歌","count":27},{"source":"bili","keyword":"西安 三日游","count":25},{"source":"bili","keyword":"西安 自由行 攻略","count":18},{"source":"xhs","keyword":"西安 美食","count":10},{"source":"xhs","keyword":"西安 攻略","count":9},{"source":"xhs","keyword":"西安 避雷","count":9},{"source":"xhs","keyword":"西安 住宿","count":9},{"source":"xhs","keyword":"西安 行程","count":7},{"source":"xhs","keyword":"西安 美食 踩雷","count":3}],"foods":[{"name":"肉夹馍","count":1155},{"name":"凉皮","count":779},{"name":"烤肉","count":738},{"name":"泡馍","count":696},{"name":"米皮","count":257},{"name":"小炒","count":201},{"name":"羊肉泡馍","count":191},{"name":"胡辣汤","count":132},{"name":"油泼面","count":127},{"name":"甑糕","count":122},{"name":"擀面皮","count":110},{"name":"葫芦头","count":102},{"name":"葫芦鸡","count":91},{"name":"水盆羊肉","count":75},{"name":"水盆","count":72},{"name":"腊牛肉","count":71},{"name":"biangbiang面","count":56},{"name":"肉丸胡辣汤","count":53},{"name":"臊子面","count":53},{"name":"裤带面","count":51}],"attractions":[{"name":"城墙","count":681},{"name":"兵马俑","count":676},{"name":"回民街","count":455},{"name":"钟楼","count":271},{"name":"大雁塔","count":267},{"name":"长恨歌","count":234},{"name":"洒金桥","count":231},{"name":"大唐不夜城","count":200},{"name":"华山","count":171},{"name":"华清池","count":142},{"name":"南门","count":134},{"name":"碑林","count":121},{"name":"鼓楼","count":115},{"name":"永兴坊","count":76},{"name":"华清宫","count":75},{"name":"大明宫","count":63},{"name":"曲江","count":59},{"name":"陕西历史博物馆","count":55},{"name":"小雁塔","count":42},{"name":"西安博物院","count":40}],"places":[{"name":"洒金桥","count":231},{"name":"魏家凉皮","count":88},{"name":"子午路张记","count":78},{"name":"刚刚烤肉","count":58},{"name":"福满长安陕菜","count":58},{"name":"长安大排档","count":44},{"name":"袁家村","count":41},{"name":"大皮院","count":36},{"name":"福满长安","count":31},{"name":"老刘家","count":29},{"name":"魏斯理","count":28},{"name":"张记","count":27},{"name":"樊记","count":26},{"name":"汉巴味德","count":24},{"name":"子午路张记肉夹馍","count":23},{"name":"水围城","count":22},{"name":"西羊市","count":18},{"name":"秦豫肉夹馍","count":16},{"name":"薛昌利","count":15},{"name":"北广济街","count":14},{"name":"陕拾叁","count":14},{"name":"草堂","count":14},{"name":"老白家","count":13},{"name":"小皮院","count":13},{"name":"贾三","count":12}],"foods_sentiment":[{"name":"肉夹馍","total":1155,"pos":803,"neg":160,"neg_ratio":0.1661,"nss":0.6677,"wilson_neg":0.144},{"name":"凉皮","total":779,"pos":555,"neg":77,"neg_ratio":0.1218,"nss":0.7563,"wilson_neg":0.0986},{"name":"烤肉","total":738,"pos":571,"neg":61,"neg_ratio":0.0965,"nss":0.807,"wilson_neg":0.0759},{"name":"泡馍","total":696,"pos":539,"neg":74,"neg_ratio":0.1207,"nss":0.7586,"wilson_neg":0.0973},{"name":"米皮","total":257,"pos":135,"neg":78,"neg_ratio":0.3662,"nss":0.2676,"wilson_neg":0.3044},{"name":"小炒","total":201,"pos":153,"neg":18,"neg_ratio":0.1053,"nss":0.7895,"wilson_neg":0.0676},{"name":"羊肉泡馍","total":191,"pos":131,"neg":32,"neg_ratio":0.1963,"nss":0.6074,"wilson_neg":0.1426},{"name":"胡辣汤","total":132,"pos":106,"neg":7,"neg_ratio":0.0619,"nss":0.8761,"wilson_neg":0.0303},{"name":"油泼面","total":127,"pos":74,"neg":32,"neg_ratio":0.3019,"nss":0.3962,"wilson_neg":0.2227},{"name":"甑糕","total":122,"pos":73,"neg":27,"neg_ratio":0.27,"nss":0.46,"wilson_neg":0.1927},{"name":"擀面皮","total":110,"pos":73,"neg":21,"neg_ratio":0.2234,"nss":0.5532,"wilson_neg":0.151},{"name":"葫芦头","total":102,"pos":67,"neg":17,"neg_ratio":0.2024,"nss":0.5952,"wilson_neg":0.1304},{"name":"葫芦鸡","total":91,"pos":69,"neg":11,"neg_ratio":0.1375,"nss":0.725,"wilson_neg":0.0785},{"name":"水盆羊肉","total":75,"pos":53,"neg":10,"neg_ratio":0.1587,"nss":0.6825,"wilson_neg":0.0886},{"name":"水盆","total":72,"pos":50,"neg":14,"neg_ratio":0.2188,"nss":0.5625,"wilson_neg":0.135},{"name":"腊牛肉","total":71,"pos":50,"neg":7,"neg_ratio":0.1228,"nss":0.7544,"wilson_neg":0.0608},{"name":"biangbiang面","total":56,"pos":40,"neg":12,"neg_ratio":0.2308,"nss":0.5385,"wilson_neg":0.1372},{"name":"肉丸胡辣汤","total":53,"pos":38,"neg":7,"neg_ratio":0.1556,"nss":0.6889,"wilson_neg":0.0775},{"name":"臊子面","total":53,"pos":40,"neg":9,"neg_ratio":0.1837,"nss":0.6327,"wilson_neg":0.0998},{"name":"裤带面","total":51,"pos":31,"neg":12,"neg_ratio":0.2791,"nss":0.4419,"wilson_neg":0.1675}],"attractions_sentiment":[{"name":"城墙","total":681,"pos":511,"neg":56,"neg_ratio":0.0988,"nss":0.8025,"wilson_neg":0.0768},{"name":"兵马俑","total":676,"pos":498,"neg":101,"neg_ratio":0.1686,"nss":0.6628,"wilson_neg":0.1408},{"name":"回民街","total":455,"pos":342,"neg":61,"neg_ratio":0.1514,"nss":0.6973,"wilson_neg":0.1197},{"name":"钟楼","total":271,"pos":212,"neg":26,"neg_ratio":0.1092,"nss":0.7815,"wilson_neg":0.0756},{"name":"大雁塔","total":267,"pos":185,"neg":47,"neg_ratio":0.2026,"nss":0.5948,"wilson_neg":0.1559},{"name":"长恨歌","total":234,"pos":198,"neg":7,"neg_ratio":0.0341,"nss":0.9317,"wilson_neg":0.0166},{"name":"洒金桥","total":231,"pos":164,"neg":22,"neg_ratio":0.1183,"nss":0.7634,"wilson_neg":0.0794},{"name":"大唐不夜城","total":200,"pos":146,"neg":26,"neg_ratio":0.1512,"nss":0.6977,"wilson_neg":0.1053},{"name":"华山","total":171,"pos":116,"neg":22,"neg_ratio":0.1594,"nss":0.6812,"wilson_neg":0.1077},{"name":"华清池","total":142,"pos":115,"neg":17,"neg_ratio":0.1288,"nss":0.7424,"wilson_neg":0.082},{"name":"南门","total":134,"pos":107,"neg":7,"neg_ratio":0.0614,"nss":0.8772,"wilson_neg":0.0301},{"name":"碑林","total":121,"pos":82,"neg":21,"neg_ratio":0.2039,"nss":0.5922,"wilson_neg":0.1374},{"name":"鼓楼","total":115,"pos":99,"neg":9,"neg_ratio":0.0833,"nss":0.8333,"wilson_neg":0.0445},{"name":"永兴坊","total":76,"pos":52,"neg":8,"neg_ratio":0.1333,"nss":0.7333,"wilson_neg":0.0691},{"name":"华清宫","total":75,"pos":72,"neg":1,"neg_ratio":0.0137,"nss":0.9726,"wilson_neg":0.0024},{"name":"大明宫","total":63,"pos":34,"neg":16,"neg_ratio":0.32,"nss":0.36,"wilson_neg":0.2076},{"name":"曲江","total":59,"pos":48,"neg":7,"neg_ratio":0.1273,"nss":0.7455,"wilson_neg":0.063},{"name":"陕西历史博物馆","total":55,"pos":45,"neg":4,"neg_ratio":0.0816,"nss":0.8367,"wilson_neg":0.0322},{"name":"小雁塔","total":42,"pos":36,"neg":3,"neg_ratio":0.0769,"nss":0.8462,"wilson_neg":0.0265},{"name":"西安博物院","total":40,"pos":35,"neg":2,"neg_ratio":0.0541,"nss":0.8919,"wilson_neg":0.015}],"places_sentiment":[{"name":"洒金桥","total":231,"pos":164,"neg":22,"neg_ratio":0.1183,"nss":0.7634,"wilson_neg":0.0794},{"name":"魏家凉皮","total":88,"pos":52,"neg":19,"neg_ratio":0.2676,"nss":0.4648,"wilson_neg":0.1785},{"name":"子午路张记","total":78,"pos":61,"neg":3,"neg_ratio":0.0469,"nss":0.9062,"wilson_neg":0.0161},{"name":"刚刚烤肉","total":58,"pos":34,"neg":3,"neg_ratio":0.0811,"nss":0.8378,"wilson_neg":0.028},{"name":"福满长安陕菜","total":58,"pos":49,"neg":7,"neg_ratio":0.125,"nss":0.75,"wilson_neg":0.0619},{"name":"长安大排档","total":44,"pos":32,"neg":8,"neg_ratio":0.2,"nss":0.6,"wilson_neg":0.105},{"name":"袁家村","total":41,"pos":32,"neg":2,"neg_ratio":0.0588,"nss":0.8824,"wilson_neg":0.0163},{"name":"大皮院","total":36,"pos":34,"neg":2,"neg_ratio":0.0556,"nss":0.8889,"wilson_neg":0.0154},{"name":"福满长安","total":31,"pos":28,"neg":1,"neg_ratio":0.0345,"nss":0.931,"wilson_neg":0.0061},{"name":"老刘家","total":29,"pos":16,"neg":3,"neg_ratio":0.1579,"nss":0.6842,"wilson_neg":0.0552},{"name":"魏斯理","total":28,"pos":16,"neg":5,"neg_ratio":0.2381,"nss":0.5238,"wilson_neg":0.1063},{"name":"张记","total":27,"pos":21,"neg":4,"neg_ratio":0.16,"nss":0.68,"wilson_neg":0.064},{"name":"樊记","total":26,"pos":20,"neg":1,"neg_ratio":0.0476,"nss":0.9048,"wilson_neg":0.0085},{"name":"汉巴味德","total":24,"pos":14,"neg":5,"neg_ratio":0.2632,"nss":0.4737,"wilson_neg":0.1181},{"name":"子午路张记肉夹馍","total":23,"pos":14,"neg":4,"neg_ratio":0.2222,"nss":0.5556,"wilson_neg":0.09},{"name":"水围城","total":22,"pos":13,"neg":4,"neg_ratio":0.2353,"nss":0.5294,"wilson_neg":0.0955},{"name":"西羊市","total":18,"pos":16,"neg":2,"neg_ratio":0.1111,"nss":0.7778,"wilson_neg":0.031},{"name":"秦豫肉夹馍","total":16,"pos":12,"neg":2,"neg_ratio":0.1429,"nss":0.7143,"wilson_neg":0.0401},{"name":"薛昌利","total":15,"pos":12,"neg":3,"neg_ratio":0.2,"nss":0.6,"wilson_neg":0.0705},{"name":"北广济街","total":14,"pos":13,"neg":0,"neg_ratio":0.0,"nss":1.0,"wilson_neg":0.0},{"name":"陕拾叁","total":14,"pos":11,"neg":0,"neg_ratio":0.0,"nss":1.0,"wilson_neg":0.0},{"name":"草堂","total":14,"pos":5,"neg":2,"neg_ratio":0.2857,"nss":0.4286,"wilson_neg":0.0822},{"name":"老白家","total":13,"pos":10,"neg":1,"neg_ratio":0.0909,"nss":0.8182,"wilson_neg":0.0162},{"name":"小皮院","total":13,"pos":9,"neg":3,"neg_ratio":0.25,"nss":0.5,"wilson_neg":0.0889},{"name":"贾三","total":12,"pos":11,"neg":0,"neg_ratio":0.0,"nss":1.0,"wilson_neg":0.0}],"length_stats":{"bili":{"n":25459,"min":1,"max":1000,"median":21,"p90":76,"mean":37.620095054793985},"xhs":{"n":2294,"min":1,"max":300,"median":15.0,"p90":58,"mean":25.425021795989537}},"length_hist":{"labels":["0–5","5–10","10–20","20–40","40–80","80–160","160–320","320–640","640–1280"],"bili":[1255,3257,7336,7360,3847,1611,572,165,56],"xhs":[256,486,661,510,268,78,35,0,0]},"ad_posts":[{"id":194,"source":"bili","keyword":"西安 美食","title":"在威海文登区雁北街吃“文登烧烤”真的绝绝子！就连本地人都排不上队#威海美食#文登烧烤#烧烤天花板#烧烤","ad_score":4,"hits":"kw:绝绝子,天花板","likes":5489,"comments_count":367},{"id":20,"source":"bili","keyword":"西安 美食","title":"【华晨宇】250414西安站–逛吃逛吃美食vlog：美食一条街花花看着口水都流出来了","ad_score":3,"hits":"url","likes":294,"comments_count":15},{"id":157,"source":"bili","keyword":"西安 行程","title":"4月15日星际公民小道报：西安BC门票开售，部分QA。月度礼包更新。溶船出现新提示。官方游戏问题QA部分搬运。运输系统技术预览开测。LIVE又预热热修","ad_score":3,"hits":"url","likes":12,"comments_count":0},{"id":610,"source":"bili","keyword":"西安 大唐不夜城","title":"带你梦回盛世大唐，漫步隋唐洛阳城 | 洛阳 隋唐洛阳城国家遗址公园 | 云散步 云旅行 沉浸式 步行POV | 漫游中国 4K60","ad_score":3,"hits":"url","likes":2991,"comments_count":625},{"id":661,"source":"bili","keyword":"西安 城墙","title":"西安城墙","ad_score":3,"hits":"url","likes":33,"comments_count":15},{"id":706,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"最惊艳的白居易《长恨歌》朗诵——乔榛丁建华版","ad_score":3,"hits":"url","likes":3078,"comments_count":410}],"ad_comments":[{"post_id":38,"source":"bili","preview":"刚从西安回来，这份攻略比较适合男生， 女孩子去玩的话，晚上基本都是不夜城、芙蓉园、兴庆宫等等打卡拍照 选衣服一小时，妆造2小时，走走拍拍又是2小时，吃个夜宵就可以回酒店了。。。 然后是11月份没有长恨歌，没有长恨歌，没有…","ad_score":6,"hits":"kw:广告,宝子,私信","likes":4224},{"post_id":38,"source":"bili","preview":"刚从西安回来，这份攻略比较适合男生， 女孩子去玩的话，晚上基本都是不夜城、芙蓉园、兴庆宫等等打卡拍照 选衣服一小时，妆造2小时，走走拍拍又是2小时，吃个夜宵就可以回酒店了。。。 然后是11月份没有长恨歌，没有长恨歌，没有…","ad_score":6,"hits":"kw:广告,宝子,私信","likes":4224},{"post_id":38,"source":"bili","preview":"刚从西安回来，这份攻略比较适合男生， 女孩子去玩的话，晚上基本都是不夜城、芙蓉园、兴庆宫等等打卡拍照 选衣服一小时，妆造2小时，走走拍拍又是2小时，吃个夜宵就可以回酒店了。。。 然后是11月份没有长恨歌，没有长恨歌，没有…","ad_score":6,"hits":"kw:广告,宝子,私信","likes":4224},{"post_id":203,"source":"bili","preview":"确实都是些南昌本地人吃的。每家我都吃过，尤其是前两家早餐店，我现在每天都在吃[星星眼]我觉得江西有些店看菜点菜特别有意思，没有菜单你就看着冰柜点每次我家请亲戚朋友吃饭我就特别喜欢点菜哈哈哈哈米粉还是比较难消化的，我自己吃…","ad_score":5,"hits":"kw:天花板,福利;emoji:11","likes":95},{"post_id":421,"source":"bili","preview":"https://www.bilibili.com/video/BV16JFMzrEDy/?spm_id_from=333.1387.homepage.video_card.click&vd_source=cb852aa0…","ad_score":5,"hits":"url;repetitive","likes":1},{"post_id":437,"source":"bili","preview":"https://www.bilibili.com/video/BV1BG411M7po/?spm_id_from=333.337.search-card.all.click&vd_source=bf84b19d80915…","ad_score":5,"hits":"url;repetitive","likes":4},{"post_id":300,"source":"bili","preview":"今年过年去乐山玩，有一家海鲜自助，海宴尚辰，海鲜品质绝对吊打雍容荟，鲜活帝王蟹，松叶蟹无限畅吃，而且还不排队，雍容荟节假日排队十分钟才能拿半只波龙，吃法也仅限于火锅煮;乐山这家，可以现拿现蒸，还可以点餐加工各种口味，辣炒…","ad_score":4,"hits":"kw:团购,吊打","likes":2},{"post_id":392,"source":"bili","preview":"【置顶】【置顶】⚠提示 ━━━━━━━━━━━━━━━━━━━ 您获得一次白嫖的机会，是否确定？ ━━━━━━━━━━━━━━━━━━━ 确定 │ 确认 千万不要顶，up会砍我的[doge] 。 up主再见啦，很抱歉做了…","ad_score":4,"hits":"kw:广告;repetitive","likes":10},{"post_id":16,"source":"bili","preview":"那么问题来了，请问我要到哪里搞到同款呢？？？ https://b23.tv/mall-FzufNmdh5-s987","ad_score":3,"hits":"url","likes":0},{"post_id":30,"source":"bili","preview":"https://b23.tv/cm-xst-0-3IhY9 视频内容有限，等不及更新的快去喜马拉雅听后续～","ad_score":3,"hits":"url","likes":31},{"post_id":67,"source":"bili","preview":"图文版已上线→https://www.bilibili.com/read/cv40498790 信息更新：陕西历史博物馆1月14日起，实行提前5天放票制度（例如，1月14日放1月19日门票），本馆放票时间为17:00，秦…","ad_score":3,"hits":"url","likes":46},{"post_id":38,"source":"bili","preview":"写给和我一样的穷比平价档住宿攻略： 我选的是大差市站新七天酒店（西安第四医院），先来说大差市站的优势：1.离钟楼只有一站 2.本身是四号线的换乘站，四号线和二号线能直达西安北站然后到机场，比三号线节省20分钟左右 3.大…","ad_score":3,"hits":"url","likes":19},{"post_id":63,"source":"bili","preview":"【换上汉服闪现古城西安大唐不夜城、长安十二时辰，感受盛世大唐的魅力，生活记录vlog，佳能M6Ⅱ代，15-45镜头，-哔哩哔哩】 https://b23.tv/267vV2U","ad_score":3,"hits":"url","likes":0},{"post_id":63,"source":"bili","preview":"【铁头惩恶扬善帮西安不夜城演员讨薪-哔哩哔哩】 https://b23.tv/Ewr3xEq","ad_score":3,"hits":"url","likes":0},{"post_id":68,"source":"bili","preview":"关注老西一段时间了，很喜欢老西做的系列视频。作为一个小寨土著，之前在知乎上写过一个关于西安旅游的回答，如果大家有朋友来西安玩的话可以直接拿去用（西安有哪些值得玩的地方？有哪些不能错过的特色美食？ https://www.…","ad_score":3,"hits":"url","likes":65},{"post_id":86,"source":"bili","preview":"【4K镜头下的六朝古都—西安-哔哩哔哩】https://b23.tv/ytzTJu","ad_score":3,"hits":"url","likes":1},{"post_id":100,"source":"bili","preview":"【西安地铁回应男子车厢抽烟，遍地垃圾无人靠近，疑似饮酒且翻闸机-哔哩哔哩】 https://b23.tv/r863emG [吃瓜]这时候保安又不管了","ad_score":3,"hits":"url","likes":918},{"post_id":105,"source":"bili","preview":"https://b23.tv/BV1ww411c7hh 我只记得这个机场[笑哭]","ad_score":3,"hits":"url","likes":26},{"post_id":135,"source":"bili","preview":"可以看看这个视频，这个up联系到当事人了https://b23.tv/BV1V8bhzNEuw","ad_score":3,"hits":"url","likes":8},{"post_id":145,"source":"bili","preview":"hi，这是我用百度网盘分享的文件~复制这段内容打开「百度网盘」APP即可获取。 链接：https://pan.baidu.com/s/1jcguA0EZ9Y9u1F2soQcA_g?pwd=1267 提取码：1267 -…","ad_score":3,"hits":"url","likes":29},{"post_id":182,"source":"bili","preview":"【【吾家吾国】87岁女院士在病床上设计西安国家版本馆-哔哩哔哩】 https://b23.tv/hy5Ot30","ad_score":3,"hits":"url","likes":1},{"post_id":191,"source":"bili","preview":"达哥来山东咋不去蒙阴看看桃花，到6月份来我家这边吃桃子吧【桃花已经开了，桃子还会远吗！生物研究生带你看自家种的蜜桃！-哔哩哔哩】 https://b23.tv/3wkYlho","ad_score":3,"hits":"url","likes":1},{"post_id":198,"source":"bili","preview":"纪红被查过 去的话 留个心眼。【“网红”烧烤，缺斤少两被抓“现形”后，欲抢夺“证据”还想动手“真实”-哔哩哔哩】 https://b23.tv/WvgDirW","ad_score":3,"hits":"url","likes":6},{"post_id":221,"source":"bili","preview":"【⭐光州Running Man⭐第一届光州无限制格斗大赛现场实录-哔哩哔哩】 https://b23.tv/8N6SLX1","ad_score":3,"hits":"url","likes":6},{"post_id":276,"source":"bili","preview":"【洛阳旅游民宿推荐 ～核心景区～-哔哩哔哩】 https://b23.tv/Ngdpz3z","ad_score":3,"hits":"url","likes":2},{"post_id":299,"source":"bili","preview":"这个视频里00:10那墙上有电话，你可以先问问。 【西安还有这么便宜的房子,只要150元一个月,你觉得合适吗?】 https://www.bilibili.com/video/BV1Sa4y1H7oG/?share_so…","ad_score":3,"hits":"url","likes":2},{"post_id":307,"source":"bili","preview":"弹幕有问陈忠实是谁的，陈忠实是小说《白鹿原》的作者，这本小说非常厚重，陈忠实凭他拿过茅盾文学奖。他本身是西安人，小说家、散文家，当过陕西作协主席以及中国作协副主席，陕西省人大代表和省委候补委员，在西北五省的文学界分量很重…","ad_score":3,"hits":"url","likes":34},{"post_id":314,"source":"bili","preview":"我是来还愿的！！我在踢踢小鱼https://www.bilibili.com/video/BV1aX4y1Q7zj/?spm_id_from=333.999.0.0&vd_source=b2fbad49cec795e09…","ad_score":3,"hits":"url","likes":941},{"post_id":315,"source":"bili","preview":"回民街里的老孙家泡馍 是私营的和百年老字号国营老大哥老孙家饭庄 不是一家 https://b23.tv/e3yRDa1 着急的话可以空降2:05看关于店的区分。这家私营的有多少年历史我不清楚，当然也可以是百年的吧[思考]…","ad_score":3,"hits":"url","likes":27},{"post_id":322,"source":"bili","preview":"有些人上蹿下跳“辟谣”的样子真搞笑【千年古都西安：越自信 越美丽-哔哩哔哩】【视频标记点 00:04】 https://b23.tv/ggU7oBF","ad_score":3,"hits":"url","likes":18},{"post_id":323,"source":"bili","preview":"讲解非本人，视频转自：https://v.qq.com/x/page/x0964iuusnz.html 讲解员b站号：博物之D","ad_score":3,"hits":"url","likes":484},{"post_id":330,"source":"bili","preview":"有点像这个https://b23.tv/BV1HN4y1c7aF","ad_score":3,"hits":"url","likes":0},{"post_id":376,"source":"bili","preview":"https://b23.tv/mall-2gGvc-wwMNTwRIqu https://b23.tv/mall-2gGvc-wZ6gYsnPdI [脱单doge][脱单doge]","ad_score":3,"hits":"url","likes":255},{"post_id":386,"source":"bili","preview":"别想了人家有男朋友了，男朋友的主页[doge]https://space.bilibili.com/","ad_score":3,"hits":"url","likes":12},{"post_id":413,"source":"bili","preview":"给大伙推荐个视频，在西安骑摩托就完事了，哪里环境好房子便宜找哪里，有摩托工作地点随意https://b23.tv/BV1GK421h7sn ，没事还能去山里转转","ad_score":3,"hits":"url","likes":4},{"post_id":437,"source":"bili","preview":"【原来邓紫棋真的有在西安吃着羊肉泡馍唱泡沫！-哔哩哔哩】 https://b23.tv/j5S27l5[吃瓜]","ad_score":3,"hits":"url","likes":24},{"post_id":443,"source":"bili","preview":"https://b23.tv/BV1hU4y1g7sp","ad_score":3,"hits":"url","likes":395},{"post_id":513,"source":"bili","preview":"你好,刘泳杰,你是我心中最厉害的辣王,我是你的老粉丝了,我看到北京要开始举办辣节,各种吃辣人士都会参与,给您分享一下链接,你也看看,希望到时候能看到你的精彩演出.https://mp.weixin.qq.com/s/Ko…","ad_score":3,"hits":"url","likes":2},{"post_id":514,"source":"bili","preview":"我发布了一篇笔记，快来看看吧 《凉皮》 （凉皮和面筋的全部）原料：一碗面粉、一盆水 1.和面 400g中筋面粉，加水，先抄成絮状然后揉成团 （普通面粉加215g水；特吸水的面粉加2... https://www.bili…","ad_score":3,"hits":"url","likes":101},{"post_id":592,"source":"bili","preview":"大唐不夜城真的梦回大唐，这灯光太辉煌了！同为古都记录者，我也刚拍了一段南京的夜景，不过这次没拍秦淮河，拍的是新街口到 1912 的现代赛博风。感觉咱们古都在‘玩灯’这件事上都挺有心得的 😂。想看古都现代一面的朋友，欢迎来…","ad_score":3,"hits":"url","likes":1},{"post_id":602,"source":"bili","preview":"李白不睡觉【探秘大唐不夜城，璀璨夜色下的唐代风情！-哔哩哔哩】 https://b23.tv/E9Pgi5D","ad_score":3,"hits":"url","likes":0},{"post_id":654,"source":"bili","preview":"您的作品在同类型中颇具潜力，支持UP主点这里:https://b23.tv/284q1xD","ad_score":3,"hits":"url","likes":0},{"post_id":655,"source":"bili","preview":"评论区张口就来的有很多，事实上，西安城墙在1926年还依然发挥了城防作用，“二虎守长安”是近代著名的守城战，西安城墙保护了西安城8个月之久，直到解围。而西安城墙从清末到当代都有大量的影像资料，1983年修复前的西安城墙视…","ad_score":3,"hits":"url","likes":248},{"post_id":660,"source":"bili","preview":"伪满洲国伪满军参与了南京大屠杀，并帮着筛查分类被俘人员。 【韩乾两20260114伪满军参与南京大屠杀-哔哩哔哩】 https://b23.tv/ZPrLbnL","ad_score":3,"hits":"url","likes":23},{"post_id":691,"source":"bili","preview":"个人更青睐安史之乱的部分： https://www.bilibili.com/video/BV1uo4y1i7nh/?share_source=copy_web&vd_source=75b8bb05a5bb7ed9925…","ad_score":3,"hits":"url","likes":103},{"post_id":703,"source":"bili","preview":"顶我上去，让更多人看到[OK]https://b23.tv/3KVuGL","ad_score":3,"hits":"url","likes":16},{"post_id":713,"source":"bili","preview":"今年是蛇年，㊗️您越🐍越多 【旺柴】[吃瓜] 初一 ㊗您越🐍越多 初二 ㊗您越🐍越多 初三㊗您越🐍越多 初四㊗您越🐍越多 初五㊗您越🐍越多 初六 ㊗您越🐍越多 初七㊗您越🐍越多 初八㊗您越🐍越多 初九㊗您越🐍越多 初十㊗…","ad_score":3,"hits":"emoji:142;repetitive","likes":14},{"post_id":781,"source":"bili","preview":"https://b23.tv/CqN1vLu","ad_score":3,"hits":"url","likes":0}],"posts_table":[{"id":763,"source":"bili","keyword":"西安 三日游","title":"这一刻才懂...秦岭为什么是中国南北分界线...地理书世界具像化了【柴西西游记】","likes":314825,"comments":22744,"ad_score":0,"url":""},{"id":441,"source":"bili","keyword":"西安 泡馍","title":"辣椒致死量！千万别在陕西吃辣子，一天3顿我怕你上瘾…","likes":227187,"comments":17952,"ad_score":0,"url":""},{"id":190,"source":"bili","keyword":"西安 美食","title":"小潮小傲去西安！西北美食吃翻天！","likes":204500,"comments":16011,"ad_score":0,"url":""},{"id":386,"source":"bili","keyword":"西安 回民街 美食","title":"西安13块钱一人的自助面，肉菜面条无限续，连吃两碗太过瘾！","likes":66806,"comments":12183,"ad_score":0,"url":""},{"id":316,"source":"bili","keyword":"西安 攻略","title":"西安街头吃宵夜，被陕西大哥亲口安排：必须吃蒜！必须喝汤！","likes":60510,"comments":11235,"ad_score":0,"url":""},{"id":473,"source":"bili","keyword":"西安 肉夹馍","title":"拼夕夕2.5元一个的肉夹馍，里面都是什么肉？真的能吃吗？","likes":75062,"comments":9638,"ad_score":0,"url":""},{"id":376,"source":"bili","keyword":"西安 回民街 美食","title":"【关中吃饭故事02】陕西吃馍宝典","likes":60145,"comments":8678,"ad_score":0,"url":""},{"id":307,"source":"bili","keyword":"西安 攻略","title":"为了来到西安，我花399报了一个夕阳红铁腚大巴纯玩团","likes":18699,"comments":8122,"ad_score":0,"url":""},{"id":205,"source":"bili","keyword":"西安 美食","title":"【ASMR扮演】极度舒适！助眠头疗店｜轻语·洗头·按摩·声疗｜深度放松入睡～","likes":81374,"comments":6317,"ad_score":0,"url":""},{"id":383,"source":"bili","keyword":"西安 回民街 美食","title":"100元吃爆西安回坊！峰哥一路狂吃，实惠又美味，太治愈了！我爱西安！","likes":20366,"comments":6188,"ad_score":0,"url":""},{"id":197,"source":"bili","keyword":"西安 美食","title":"西安小吃合集 厨子探店¥？？？","likes":169640,"comments":6035,"ad_score":2,"url":""},{"id":377,"source":"bili","keyword":"西安 回民街 美食","title":"西安城墙下逛早市，50元吃了7家店，接地气的小吃好吃还顶饱，油泼辣子放个美","likes":46332,"comments":5988,"ad_score":0,"url":""},{"id":449,"source":"bili","keyword":"西安 泡馍","title":"西安小巷里藏着25块钱一盆的BiangBiang面，热油一泼，连吃8根，就着蒜太香了！","likes":70994,"comments":5582,"ad_score":0,"url":""},{"id":392,"source":"bili","keyword":"西安 烤肉 推荐","title":"被网友评为全上海最好吃的烤肉店！真的那么好吃？","likes":78186,"comments":5565,"ad_score":0,"url":""},{"id":17,"source":"bili","keyword":"西安 美食","title":"特种兵一天吃遍西安！","likes":69536,"comments":5369,"ad_score":0,"url":""},{"id":323,"source":"bili","keyword":"西安 攻略","title":"陕西历史博物馆全程参观讲解（配有讲解字幕）","likes":44626,"comments":5224,"ad_score":0,"url":""},{"id":619,"source":"bili","keyword":"西安 大唐不夜城","title":"【中国千年之美】大唐女儿行｜妆｜发｜饰｜服｜演变史","likes":311108,"comments":4975,"ad_score":0,"url":""},{"id":5,"source":"xhs","keyword":"西安 美食 踩雷","title":"西安食物避雷！！","likes":607,"comments":4792,"ad_score":0,"url":""},{"id":486,"source":"bili","keyword":"西安 凉皮","title":"称霸西安30年的凉皮，一碗8元，半碗都是红油，配肉夹馍太过瘾！","likes":57629,"comments":4728,"ad_score":0,"url":""},{"id":420,"source":"bili","keyword":"西安 烤肉 推荐","title":"南京3天2夜10家店！26元大肉麵vs 88元黑珍珠烤鴨，哪個香？","likes":25272,"comments":4589,"ad_score":0,"url":""},{"id":7,"source":"bili","keyword":"西安 美食","title":"全部盆干碗净！一条视频30分钟50种西安特色美食！无广无滤镜的保姆级美食速通攻略！","likes":51470,"comments":4004,"ad_score":0,"url":""},{"id":36,"source":"bili","keyword":"西安 美食","title":"特厨探店 |西安全好评餐厅？！—莲花餐饮","likes":224653,"comments":3844,"ad_score":2,"url":""},{"id":591,"source":"bili","keyword":"西安 大唐不夜城","title":"一个人逛西安，被大唐不夜城震惊了！","likes":74375,"comments":3679,"ad_score":0,"url":""},{"id":203,"source":"bili","keyword":"西安 美食","title":"上头南昌美食吃一天！5家老牌店！","likes":64842,"comments":3560,"ad_score":0,"url":""},{"id":407,"source":"bili","keyword":"西安 烤肉 推荐","title":"杭州巴西烤肉自助，16种肉115元5个小时吃过瘾！","likes":109799,"comments":3492,"ad_score":0,"url":""},{"id":370,"source":"bili","keyword":"西安 回民街 美食","title":"带娃逛吃回民街，走街串巷十几种小吃从早吃到晚，油泼辣子含量极高","likes":38870,"comments":3437,"ad_score":0,"url":""},{"id":37,"source":"bili","keyword":"西安 攻略","title":"不花冤枉钱，不绕冤枉路！来西安收藏这篇超详细攻略就够了！","likes":23258,"comments":3435,"ad_score":2,"url":""},{"id":620,"source":"bili","keyword":"西安 大唐不夜城","title":"洛阳.小街天府 厨子探店¥110","likes":134642,"comments":3338,"ad_score":2,"url":""},{"id":508,"source":"bili","keyword":"西安 凉皮","title":"带娃在西宁吃牦牛大骨汤，吃了13个免费的牛肉辣椒酱夹馍，一人一碗肉连吃两顿，吃肉喝汤很解馋","likes":59781,"comments":3305,"ad_score":0,"url":""},{"id":458,"source":"bili","keyword":"西安 肉夹馍","title":"在西安肉夹馍可真是吃爽了，子午路张记肉夹馍｜真探来了","likes":38729,"comments":3242,"ad_score":0,"url":""},{"id":703,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"强推!张国立演绎《长恨歌》，每一句都是肝肠寸断！","likes":28149,"comments":3238,"ad_score":0,"url":""},{"id":315,"source":"bili","keyword":"西安 攻略","title":"西安本地人最爱的老街 遍地百年老店 根本吃不完啊！","likes":16070,"comments":3236,"ad_score":0,"url":""},{"id":470,"source":"bili","keyword":"西安 肉夹馍","title":"光是煮肉就有这么多学问和讲究，难怪肉夹馍吃着特别香，一学就会","likes":59498,"comments":3211,"ad_score":0,"url":""},{"id":514,"source":"bili","keyword":"西安 凉皮","title":"史上最强凉皮指南：用实力拒绝翻车！","likes":99644,"comments":3201,"ad_score":0,"url":""},{"id":435,"source":"bili","keyword":"西安 泡馍","title":"花30元打卡西安特色小炒泡馍，配上糖蒜，酸辣爽口太过瘾！","likes":60788,"comments":3198,"ad_score":0,"url":""},{"id":455,"source":"bili","keyword":"西安 肉夹馍","title":"西安排名第一的肉夾饃，18元一個一天能賣600斤肉，早上9點就排隊，真的好吃嗎","likes":16308,"comments":3184,"ad_score":0,"url":""},{"id":561,"source":"bili","keyword":"西安 洒金桥 美食","title":"车主听信缺德地图误入小巷后又入绝望洒金桥，全程问候导航。","likes":2963,"comments":2781,"ad_score":0,"url":""},{"id":21,"source":"bili","keyword":"西安 美食","title":"在西安一到夏天晚上就想吃烤肉，1元一串多放孜然辣子烤得滋滋冒油，特别解馋就是长肉比较猛","likes":83927,"comments":2728,"ad_score":0,"url":""},{"id":493,"source":"bili","keyword":"西安 凉皮","title":"老陕吃辣挺吓人的，抓着米皮在辣椒油里美美蘸一下，秦镇米皮辣椒油使劲放，爱吃辣可以蘸两下","likes":86076,"comments":2648,"ad_score":0,"url":""},{"id":590,"source":"bili","keyword":"西安 大唐不夜城","title":"《西安人的歌》MV","likes":18287,"comments":2647,"ad_score":0,"url":""},{"id":773,"source":"bili","keyword":"西安 三日游","title":"送你一份超详细的青岛三日旅游攻略 | 内含图文版","likes":38158,"comments":2608,"ad_score":2,"url":""},{"id":34,"source":"bili","keyword":"西安 美食","title":"跟馋嘴伙计们小聚，藏在家属院里的烤肉店，1.2元一串肉挺多，孜然辣子撒满，第一轮吃烤串，第二轮自制夹馍更过瘾","likes":78789,"comments":2554,"ad_score":0,"url":""},{"id":403,"source":"bili","keyword":"西安 烤肉 推荐","title":"1.2元的西安传统烤肉，两个月吃了六七次，烤筋烤腰子烤孜然炒牛肉，还有带馅烤馍，一到晚上馋了就想去","likes":47964,"comments":2525,"ad_score":0,"url":""},{"id":438,"source":"bili","keyword":"西安 泡馍","title":"来西安玩，该怎么选牛羊肉泡馍？！","likes":19468,"comments":2369,"ad_score":0,"url":""},{"id":769,"source":"bili","keyword":"西安 三日游","title":"把韩国买的中国自行车寄到西安 穿越丝绸之路 开局不顺 韩国博主金汉良","likes":4965,"comments":2338,"ad_score":0,"url":""},{"id":189,"source":"bili","keyword":"西安 美食","title":"房子到期搬家离开了，花78块开了个包浆电竞房，准备离开西安了","likes":15510,"comments":2317,"ad_score":0,"url":""},{"id":38,"source":"bili","keyword":"西安 攻略","title":"送你一份超详细的西安三日旅游攻略 | 内含图文版","likes":47556,"comments":2314,"ad_score":0,"url":""},{"id":457,"source":"bili","keyword":"西安 肉夹馍","title":"真怕吃上瘾…#西安肉夹馍","likes":12253,"comments":2301,"ad_score":0,"url":""},{"id":360,"source":"bili","keyword":"西安 回民街 美食","title":"花17元打卡西安回民街黑暗料理，居然爆好吃！！","likes":22239,"comments":2196,"ad_score":0,"url":""},{"id":563,"source":"bili","keyword":"西安 洒金桥 美食","title":"妹子花25元打卡西安最火爆肚面，盘大面多无限续，就着蒜太过瘾！","likes":39238,"comments":2195,"ad_score":0,"url":""},{"id":484,"source":"bili","keyword":"西安 肉夹馍","title":"跟馋嘴伙计在渭南吃的早餐第三顿，4个人买了65个包子，蘸着辣椒油吃得美","likes":31984,"comments":2147,"ad_score":0,"url":""},{"id":15,"source":"bili","keyword":"西安 美食","title":"城中村路边摊4元的自助餐，一个现打的烧饼还有十几种菜随便吃，花费不大吃得顺心","likes":65018,"comments":2110,"ad_score":0,"url":""},{"id":322,"source":"bili","keyword":"西安 攻略","title":"9分钟游遍西安：世界四大古都之一的西安，如今长什么样子？","likes":13125,"comments":2061,"ad_score":0,"url":""},{"id":515,"source":"bili","keyword":"西安 凉皮","title":"懒人夏日福音！近１０款即食凉皮凉面大测评，赶快进来抄作业！","likes":4916,"comments":2008,"ad_score":0,"url":""},{"id":402,"source":"bili","keyword":"西安 烤肉 推荐","title":"石家庄110元人气烤肉自助，种类超多，熟食不错，价格略贵。","likes":28373,"comments":1997,"ad_score":0,"url":""},{"id":425,"source":"bili","keyword":"西安 泡馍","title":"西安羊肉泡饃天花板，一碗38元傳承近百年，真的好吃嗎？","likes":8557,"comments":1990,"ad_score":2,"url":""},{"id":443,"source":"bili","keyword":"西安 泡馍","title":"马洪小炒泡馍 厨子探店¥110","likes":96003,"comments":1949,"ad_score":2,"url":""},{"id":196,"source":"bili","keyword":"西安 美食","title":"旅游必看！！打开不一样的重庆美食！","likes":72523,"comments":1948,"ad_score":0,"url":""},{"id":451,"source":"bili","keyword":"西安 泡馍","title":"西安驾车之旅-中国西北第一大城市","likes":2855,"comments":1926,"ad_score":0,"url":""},{"id":613,"source":"bili","keyword":"西安 大唐不夜城","title":"和活人感女友去西安24小时…40分钟巨长vlog！","likes":17101,"comments":1922,"ad_score":0,"url":""},{"id":422,"source":"bili","keyword":"西安 泡馍","title":"又是爆碳水的一天…#西安羊肉泡馍#寻羊记","likes":16264,"comments":1894,"ad_score":0,"url":""},{"id":460,"source":"bili","keyword":"西安 肉夹馍","title":"子午路张记肉夹馍 厨子探店¥79","likes":115617,"comments":1870,"ad_score":2,"url":""},{"id":201,"source":"bili","keyword":"西安 美食","title":"西安燒烤排隊王，一元一串一天能賣近萬串，丹牛能吃幾串？","likes":8190,"comments":1803,"ad_score":0,"url":""},{"id":27,"source":"bili","keyword":"西安 美食","title":"二刷南宁！超长视频把美食老底全掏了！！","likes":61285,"comments":1792,"ad_score":0,"url":""},{"id":28,"source":"bili","keyword":"西安 美食","title":"徐州美食还是太权威了…二刷都没能拿下！！","likes":61036,"comments":1683,"ad_score":0,"url":""},{"id":86,"source":"bili","keyword":"西安 攻略","title":"【央视/纪录片】西安2020 全6集【2012】【国语中字】【千古胸怀，拥抱未来】","likes":1280,"comments":1673,"ad_score":0,"url":""},{"id":697,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"XIAN VLOG | 在西安吃晕碳的每一天🥟 兵马俑长恨歌｜吃遍洒金桥｜马二饺子｜小炒牛肉泡馍｜镜糕｜裤带面｜","likes":9542,"comments":1633,"ad_score":2,"url":""},{"id":76,"source":"xhs","keyword":"西安 避雷","title":"西安旅游巨无聊🥱","likes":1435,"comments":1624,"ad_score":0,"url":""},{"id":373,"source":"bili","keyword":"西安 回民街 美食","title":"吃烤肉还得来大西北，西宁150元美美吃一顿，大块的牛肉大串羊肉，加上羊肉炕锅好吃还顶饱","likes":39357,"comments":1603,"ad_score":0,"url":""},{"id":314,"source":"bili","keyword":"西安 攻略","title":"MarVlog｜三月日常 · 出差旅行｜西安 · 昆明｜吃喝探店 · 与野球帝联动 · 迪士尼购物分享 · 与姐妹约会","likes":11639,"comments":1594,"ad_score":2,"url":""},{"id":73,"source":"xhs","keyword":"西安 避雷","title":"西安｜ 国内最令人失望的著名旅游城市","likes":1015,"comments":1590,"ad_score":0,"url":""},{"id":8,"source":"bili","keyword":"西安 美食","title":"可能是史上最全西安美食视频，跟着吃就行（美食多，语速快，可慢速播放）","likes":56420,"comments":1589,"ad_score":0,"url":""},{"id":88,"source":"bili","keyword":"西安 攻略","title":"九寨沟避开人潮暴击！用我这招独享整片海子 | 内附攻略图文版","likes":22251,"comments":1582,"ad_score":0,"url":""},{"id":209,"source":"bili","keyword":"西安 避雷","title":"如何评价陕西这个省？","likes":8644,"comments":1570,"ad_score":0,"url":""},{"id":522,"source":"bili","keyword":"西安 夜市 小吃","title":"砍哥带我逛夜市 泰好玩辣！","likes":30376,"comments":1488,"ad_score":0,"url":""},{"id":456,"source":"bili","keyword":"西安 肉夹馍","title":"正经的西安肉夹馍10元，现打的白吉馍夹着热乎酥烂的腊汁肉，馍酥肉香肥肉都化了，和满满辣椒油的米皮是绝配","likes":34950,"comments":1480,"ad_score":0,"url":""},{"id":198,"source":"bili","keyword":"西安 美食","title":"到齐齐哈尔的意义：撸最豪横的串！大块肉+滋滋冒油，这才叫吃肉的快乐#齐齐哈尔美食#齐齐哈尔烤肉#烤串#大串","likes":27874,"comments":1473,"ad_score":0,"url":""},{"id":497,"source":"bili","keyword":"西安 凉皮","title":"一个视频讲透陕西凉皮专用辣椒油的做法，从选材到油温，从原理到易错点，来听老师傅娓娓道来","likes":31234,"comments":1466,"ad_score":0,"url":""},{"id":489,"source":"bili","keyword":"西安 凉皮","title":"怎么才能调出一份地道的陕西凉皮?大料水辣椒油蒜水一个都不能少","likes":29495,"comments":1430,"ad_score":0,"url":""},{"id":188,"source":"bili","keyword":"西安 美食","title":"特辣的螺蛳粉用搪瓷盆装，14元一盆，嘴馋看啥小料都想加，带娃花了100多吃美了","likes":47104,"comments":1428,"ad_score":0,"url":""},{"id":397,"source":"bili","keyword":"西安 烤肉 推荐","title":"西安睡衣登山大赛现场解说","likes":25935,"comments":1427,"ad_score":0,"url":""},{"id":440,"source":"bili","keyword":"西安 泡馍","title":"先吃卤汁凉粉垫垫肚子，油泼辣子放三大勺再加上腊牛肉，饭后去吃一块钱的烤肉，100元吃个饱","likes":37276,"comments":1421,"ad_score":0,"url":""},{"id":195,"source":"bili","keyword":"西安 美食","title":"实锤！一条视频20个福州特色本地人美食！经典超大合集！ 全国各市美食速通攻略--福建福州！","likes":18025,"comments":1413,"ad_score":0,"url":""},{"id":230,"source":"bili","keyword":"西安 避雷","title":"西安显龙事件“全记录”有龙显，有龙吟。","likes":4023,"comments":1353,"ad_score":0,"url":""},{"id":762,"source":"bili","keyword":"西安 三日游","title":"旅行4年，我最留恋的9个穷游城市","likes":47476,"comments":1291,"ad_score":0,"url":""},{"id":745,"source":"bili","keyword":"五一 西安 旅游","title":"五一/5月去哪玩？蹦哒的好季节，抛砖引玉，请大家一起来补充","likes":12764,"comments":1198,"ad_score":0,"url":""},{"id":309,"source":"bili","keyword":"西安 攻略","title":"【洛阳】三千字攻略！！连人民日报都推荐这么玩！！！龙门石窟|应天门|九州池|天堂明堂|丽景门|洛邑古城|洛阳博物馆|古墓博物馆|白马寺","likes":23935,"comments":1195,"ad_score":0,"url":""},{"id":501,"source":"bili","keyword":"西安 凉皮","title":"陕西凉皮的殿堂级教程！手残党也能做出正宗凉皮。","likes":19416,"comments":1183,"ad_score":0,"url":""},{"id":747,"source":"bili","keyword":"五一 西安 旅游","title":"暴走12h狂刷12场！清明上河园必看&避坑血泪实测｜向游·景区评测 ①","likes":2160,"comments":1107,"ad_score":0,"url":""},{"id":691,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"西安·华清池《长恨歌》（上）【4K50帧无抖动版】","likes":8021,"comments":1101,"ad_score":0,"url":""},{"id":44,"source":"xhs","keyword":"西安 美食","title":"(无标题)","likes":6126,"comments":1094,"ad_score":0,"url":""},{"id":777,"source":"bili","keyword":"西安 自由行 攻略","title":"一人游│重庆自由行全攻略！盘点&吐槽重庆的那些热门景点│重庆│川渝篇Day1","likes":6531,"comments":1090,"ad_score":0,"url":""},{"id":193,"source":"bili","keyword":"西安 美食","title":"哈尔滨…这次你把我吃垮了！从来没做过这么长的美食攻略！","likes":46346,"comments":1052,"ad_score":0,"url":""},{"id":202,"source":"bili","keyword":"西安 美食","title":"大连美食保姆级速通攻略！一条视频15分钟20家大连特色美食！无广无滤镜！","likes":18393,"comments":1030,"ad_score":0,"url":""},{"id":404,"source":"bili","keyword":"西安 烤肉 推荐","title":"这很难评，北京自助烤肉排队王，除了烤肉都好吃？姜胖胖首尔烤肉，女子吃一本","likes":7461,"comments":1018,"ad_score":0,"url":""},{"id":482,"source":"bili","keyword":"西安 肉夹馍","title":"[街头大胃王2.191013cut]白钟元西安凉皮肉夹馍吃嗨了 冰峰汽水实力抢镜 三秦套餐是黄金搭配","likes":1143,"comments":980,"ad_score":0,"url":""},{"id":492,"source":"bili","keyword":"西安 凉皮","title":"全网最火洗碗凉皮，排队一个多小时才能吃上！","likes":61488,"comments":957,"ad_score":2,"url":""},{"id":410,"source":"bili","keyword":"西安 烤肉 推荐","title":"在宜昌吃卤味烧烤和锅子，几十种卤味拼了七大盘，蘸着香辣蘸汁当下酒菜美得很，烧烤的品种很丰富，香脆的烤蚂蚱吃不够","likes":19790,"comments":953,"ad_score":0,"url":""},{"id":450,"source":"bili","keyword":"西安 泡馍","title":"西安 | 街边羊肉泡馍，馍用手掰抢着吃！","likes":9089,"comments":923,"ad_score":0,"url":""},{"id":760,"source":"bili","keyword":"西安 三日游","title":"一个视频，带你踩遍山西大同所有坑！【肖恩的旅游攻略】","likes":5168,"comments":909,"ad_score":0,"url":""},{"id":361,"source":"bili","keyword":"西安 回民街 美食","title":"【米卡巡演】西安站！小老外带老外爸爸特种兵旅游，我十分推荐看兵马俑、吃肉夹馍、逛回民街！","likes":6308,"comments":904,"ad_score":0,"url":""},{"id":478,"source":"bili","keyword":"西安 肉夹馍","title":"回到西安吃解馋的牛肉粉蒸肉，21元一碗大块的牛肉蒸得酥烂牛油入口即化，配油泼辣子夹馍也美得很","likes":25452,"comments":900,"ad_score":0,"url":""},{"id":424,"source":"bili","keyword":"西安 泡馍","title":"西安小巷里的小面馆，6.8元大老碗手工biangbiang面有7两，面可以免费加管撑吃，多加辣椒粉热油一泼，还可以再加油泼辣子","likes":26012,"comments":873,"ad_score":0,"url":""},{"id":418,"source":"bili","keyword":"西安 烤肉 推荐","title":"爆辣挑战超营养魔力玛咖锅 爆辣小米椒劝退各网友 | 魔力玛咖水晶冒菜 | 西安","likes":36440,"comments":862,"ad_score":0,"url":""},{"id":396,"source":"bili","keyword":"西安 烤肉 推荐","title":"天津大悦城139元日式烤肉自助，中等价位中等品质，填补了150价位烤肉自助的空档","likes":10654,"comments":860,"ad_score":2,"url":""},{"id":523,"source":"bili","keyword":"西安 夜市 小吃","title":"长沙最大的夜市小吃街四方坪！100元餐标遇到了100家商铺简直小巫见大巫！","likes":6186,"comments":831,"ad_score":0,"url":""},{"id":338,"source":"bili","keyword":"西安 美食 踩雷","title":"【宁波vlog小吃篇】宁波保姆级美食攻略！本地人推荐不踩雷！鼓楼美食合集 糯叽叽猪油年糕团 辣哭饼 糖糕 矮子馅饼 油赞子 梁弄大糕 一口气…","likes":5915,"comments":804,"ad_score":2,"url":""},{"id":433,"source":"bili","keyword":"西安 泡馍","title":"这部片子将颠覆你对西安的传统印象，这座十三朝古都将用全新的面貌向世人讲述自己的辉煌历史和璀璨的未来！","likes":22225,"comments":803,"ad_score":0,"url":""},{"id":388,"source":"bili","keyword":"西安 回民街 美食","title":"西安藏在小巷子里1元1串的烤肉！牛肉，牛筋，牛腰，牛肚，全部1元1串！这这这这性价比简直也太炸裂了吧！最关键的是它不光便宜而且巨好吃，一吃根…","likes":13876,"comments":778,"ad_score":0,"url":""},{"id":536,"source":"bili","keyword":"西安 夜市 小吃","title":"我不相信有人能拒绝西安的夜市！便宜又好吃挑到眼花缭乱","likes":8440,"comments":771,"ad_score":0,"url":""},{"id":510,"source":"bili","keyword":"西安 凉皮","title":"麻酱凉皮 肉夹馍","likes":15763,"comments":770,"ad_score":0,"url":""},{"id":495,"source":"bili","keyword":"西安 凉皮","title":"西安的网红餐厅、长安大排档看看有没有地道陕味｜真探来了","likes":15693,"comments":764,"ad_score":0,"url":""},{"id":6,"source":"xhs","keyword":"西安 美食 踩雷","title":"西安巨会营销，但巨难吃的店","likes":281,"comments":756,"ad_score":0,"url":""},{"id":35,"source":"bili","keyword":"西安 美食","title":"咸阳，一个被美食和烟火气包围的城市，吃不完根本吃不完🤯","likes":2301,"comments":743,"ad_score":0,"url":""},{"id":68,"source":"bili","keyword":"西安 攻略","title":"「干货」本地人告诉你，西安旅游怎么不踩坑！防雷指南！","likes":32226,"comments":731,"ad_score":0,"url":""},{"id":206,"source":"bili","keyword":"西安 美食","title":"百万博主开的一个烧烤大排档，五个人一顿饭吃250元，吃美了","likes":22587,"comments":716,"ad_score":0,"url":""},{"id":336,"source":"bili","keyword":"西安 美食 踩雷","title":"现做的西安特色小吃牛肉粉蒸肉，先给牛肉做按摩，加上腰窝油蒸得软烂，一个夹馍8块钱就能解馋，一碗肉20元配大蒜吃更香","likes":22040,"comments":711,"ad_score":0,"url":""},{"id":467,"source":"bili","keyword":"西安 肉夹馍","title":"西安肉夹馍测评，快来看看有没有你喜欢吃的！","likes":63873,"comments":693,"ad_score":0,"url":""},{"id":532,"source":"bili","keyword":"西安 夜市 小吃","title":"深圳最大的夜市！居然汇聚了这么多城市的特色小吃！花100元买了11款小吃！个位数吃到饱!给我一个星期都吃不完！（无广探店）","likes":5512,"comments":673,"ad_score":2,"url":""},{"id":759,"source":"bili","keyword":"西安 三日游","title":"1小时268元！西安最贵采耳店，怀抱式采耳你体验过吗？","likes":3797,"comments":658,"ad_score":0,"url":""},{"id":625,"source":"bili","keyword":"西安 兵马俑 攻略","title":"秦始皇陵兵马俑现场高质量讲解介绍","likes":18141,"comments":654,"ad_score":0,"url":""},{"id":148,"source":"bili","keyword":"西安 住宿","title":"西安城墙解说精讲，步行古城墙，感觉历史韵！——【阿布游记】西安城墙","likes":1249,"comments":654,"ad_score":0,"url":""},{"id":4,"source":"xhs","keyword":"西安 美食 踩雷","title":"西安不好吃","likes":44,"comments":652,"ad_score":0,"url":""},{"id":684,"source":"bili","keyword":"西安 城墙","title":"拆毁也是一种保护？激进政治如何推倒了北京城墙？【城门、城墙、牌楼·改造旧北京4】","likes":6825,"comments":640,"ad_score":0,"url":""},{"id":469,"source":"bili","keyword":"西安 肉夹馍","title":"来碳水之都～西安，第一顿必须闹肉夹馍！腊汁肉配上冒着热气的馍一夹，一口下去美的很！","likes":8574,"comments":629,"ad_score":0,"url":""},{"id":610,"source":"bili","keyword":"西安 大唐不夜城","title":"带你梦回盛世大唐，漫步隋唐洛阳城 | 洛阳 隋唐洛阳城国家遗址公园 | 云散步 云旅行 沉浸式 步行POV | 漫游中国 4K60","likes":2991,"comments":625,"ad_score":3,"url":""},{"id":372,"source":"bili","keyword":"西安 回民街 美食","title":"陕菜葫芦鸡，50一只肉香酥脆，4道硬菜，阿星吃顿农家乐","likes":4235,"comments":618,"ad_score":0,"url":""},{"id":783,"source":"bili","keyword":"西安 自由行 攻略","title":"陕西旅游攻略-宝鸡、榆林","likes":4534,"comments":615,"ad_score":0,"url":""},{"id":557,"source":"bili","keyword":"西安 洒金桥 美食","title":"号称西安美食街天花板，本地土著安排您100元吃到撑！","likes":1044,"comments":614,"ad_score":2,"url":""},{"id":288,"source":"xhs","keyword":"西安 行程","title":"四天三晚的西安之旅","likes":551,"comments":612,"ad_score":0,"url":""},{"id":192,"source":"bili","keyword":"西安 美食","title":"挑战北京二环17元无限续陕西油泼面！哥俩能吃几碗？","likes":6145,"comments":597,"ad_score":0,"url":""},{"id":353,"source":"bili","keyword":"西安 美食 踩雷","title":"广州探店！人均不过百两间好味日式炸物店！多次打卡不踩雷成为回头客？博多天妇罗&友会猪扒","likes":2489,"comments":597,"ad_score":2,"url":""},{"id":24,"source":"bili","keyword":"西安 美食","title":"【阿星探店】吃羊肉泡馍最详指南，吃货来西安必看，地道老陕都这样咥，嘹咋咧","likes":2774,"comments":596,"ad_score":2,"url":""},{"id":351,"source":"bili","keyword":"西安 美食 踩雷","title":"渭南收官，吃了一个月竟然还有这么多没吃过的，不是渭南你也太有料了吧！","likes":1702,"comments":590,"ad_score":0,"url":""},{"id":82,"source":"xhs","keyword":"西安 避雷","title":"这次旅游感觉心里好膈应啊","likes":218,"comments":566,"ad_score":0,"url":""},{"id":78,"source":"xhs","keyword":"西安 避雷","title":"西安旅游体验非常不好的五天","likes":372,"comments":559,"ad_score":0,"url":""},{"id":107,"source":"bili","keyword":"西安 避雷","title":"DeepSeek评价西安是最不宜居城市？从多个维度来看看AI分析的是否靠谱！","likes":1212,"comments":555,"ad_score":0,"url":""},{"id":416,"source":"bili","keyword":"西安 烤肉 推荐","title":"早餐第1顿西安肉丸糊辣汤加酱牛肉，第2顿河南肉丁胡辣汤泡葱花饼，还有6块钱的甜品和56元一斤的腊牛肉","likes":22629,"comments":554,"ad_score":0,"url":""},{"id":655,"source":"bili","keyword":"西安 城墙","title":"西安城墙全景航拍一镜到底，全长13.74公里1400年历史，迄今为止保存最完整的古代城园建筑","likes":5536,"comments":540,"ad_score":0,"url":""},{"id":313,"source":"bili","keyword":"西安 攻略","title":"对标《航拍中国》，历经5年拍摄，我们制作了50分钟城市航拍纪录片《航拍西安》！","likes":2070,"comments":535,"ad_score":0,"url":""},{"id":80,"source":"xhs","keyword":"西安 避雷","title":"(无标题)","likes":278,"comments":521,"ad_score":0,"url":""},{"id":772,"source":"bili","keyword":"西安 三日游","title":"受不了这些千万别来西安旅游","likes":62822,"comments":499,"ad_score":0,"url":""},{"id":218,"source":"bili","keyword":"西安 避雷","title":"曾经的顶流红灯区吉祥村真实现状，白天安静祥和，夜晚暗流涌动","likes":1179,"comments":498,"ad_score":0,"url":""},{"id":765,"source":"bili","keyword":"西安 三日游","title":"高食欲超爱碳水小女孩来西安的一天都吃了啥","likes":9631,"comments":493,"ad_score":0,"url":""},{"id":431,"source":"bili","keyword":"西安 泡馍","title":"冒雨跑了20公里去吃泡馍，优质的35牛肉就是多，肋条肉带着肥膘带着筋，吃一口香迷糊了","likes":29429,"comments":491,"ad_score":0,"url":""},{"id":311,"source":"bili","keyword":"西安 攻略","title":"碳水脑袋7刷西安！！巨详细必吃攻略！宝藏老店不看必亏！！！","likes":8035,"comments":490,"ad_score":0,"url":""},{"id":490,"source":"bili","keyword":"西安 凉皮","title":"三个老西安告诉你，西安最值得吃的5家店，游客找不到，本地人都推荐","likes":5149,"comments":490,"ad_score":0,"url":""},{"id":496,"source":"bili","keyword":"西安 凉皮","title":"【当和】简易版凉皮，从面粉到做好十多分钟就搞定","likes":38272,"comments":484,"ad_score":0,"url":""},{"id":30,"source":"bili","keyword":"西安 美食","title":"探险西安最大的城中村：吉祥村。也是最神秘的城中村，村内小巷子纵横交错、遍佈美食摊、按摩店，据説黑夜之后，小巷子角落会有诱惑。村子是底层人的乐…","likes":1218,"comments":478,"ad_score":0,"url":""},{"id":340,"source":"bili","keyword":"西安 美食 踩雷","title":"陕西宝鸡｜被低估的美食小巷 豆浆加辣子？12元一斤核桃馍香到跺脚","likes":2323,"comments":469,"ad_score":0,"url":""},{"id":704,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"西安·华清池《长恨歌》（下）【4K50帧无抖动版】","likes":2201,"comments":467,"ad_score":0,"url":""},{"id":302,"source":"bili","keyword":"西安 攻略","title":"【千年古都】｜探索西安之旅 4K","likes":3595,"comments":466,"ad_score":0,"url":""},{"id":9,"source":"bili","keyword":"西安 美食","title":"西安吃住45天vlog,80分钟最真实的西安美食记录","likes":4022,"comments":462,"ad_score":0,"url":""},{"id":593,"source":"bili","keyword":"西安 大唐不夜城","title":"魏家凉皮！西餐精酿足疗？西安还是太魔幻了","likes":10519,"comments":454,"ad_score":0,"url":""},{"id":233,"source":"bili","keyword":"西安 避雷","title":"现在大环境已经卷到这种程度了吗","likes":4160,"comments":451,"ad_score":0,"url":""},{"id":191,"source":"bili","keyword":"西安 美食","title":"在青岛偏僻菜市场发现烤肉“扫地僧”5块钱一串烤猪肉串，焦香爆汁超入味，再配上现包的韭菜水饺，鲜爽又实在，这市井烟火气太绝了#青岛美食#菜市场…","likes":15210,"comments":443,"ad_score":0,"url":""},{"id":321,"source":"bili","keyword":"西安 攻略","title":"【逛吃西安】四刷！坊上刷街连吃六家！每次都有新惊喜！太好吃了！","likes":4700,"comments":440,"ad_score":0,"url":""},{"id":476,"source":"bili","keyword":"西安 肉夹馍","title":"菏泽肉夹馍仙人，卖了29年肉夹馍，三两木屑二两肉。墩子木屑就是灵魂！","likes":73105,"comments":439,"ad_score":0,"url":""},{"id":499,"source":"bili","keyword":"西安 凉皮","title":"三笼包子一份凉皮，妹子花24吃午饭，大热天吃凉皮嗦不停，过瘾","likes":6072,"comments":436,"ad_score":0,"url":""},{"id":507,"source":"bili","keyword":"西安 凉皮","title":"在西安吃到288元/位的早茶自助 乳鸽皮脆爆汁近期心头好，整体菜品都不错","likes":9621,"comments":429,"ad_score":0,"url":""},{"id":753,"source":"bili","keyword":"西安 三日游","title":"西安文昌门下的《天空之城》大合唱，再次怀念迷人的a哥","likes":9081,"comments":422,"ad_score":0,"url":""},{"id":692,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"西安华清宫长恨歌历史舞台剧","likes":1979,"comments":420,"ad_score":0,"url":""},{"id":354,"source":"bili","keyword":"西安 美食 踩雷","title":"在西安吃一碗8两的油泼裤带面～震惊我北方人一年！配上从山东带来的大蒜太香了～","likes":3333,"comments":411,"ad_score":0,"url":""},{"id":706,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"最惊艳的白居易《长恨歌》朗诵——乔榛丁建华版","likes":3078,"comments":410,"ad_score":3,"url":""},{"id":224,"source":"bili","keyword":"西安 避雷","title":"「西安避坑攻略」纯玩团真的纯玩？天真！套路多到想吐","likes":5706,"comments":408,"ad_score":0,"url":""},{"id":437,"source":"bili","keyword":"西安 泡馍","title":"邓紫棋西安巡演结束后直播吃羊肉泡沫！","likes":3515,"comments":406,"ad_score":0,"url":""},{"id":187,"source":"bili","keyword":"西安 美食","title":"探险西安全是大学生的城中村：西八里村。这里拥有两条美食街，村外是地铁口和大排档。廉价的出租屋、小餐馆、小巷子内遍布小的正规按摩店。","likes":1501,"comments":399,"ad_score":0,"url":""},{"id":305,"source":"bili","keyword":"西安 攻略","title":"吃胖20斤总结出来的西安美食攻略！全网最全！","likes":9060,"comments":390,"ad_score":2,"url":""},{"id":357,"source":"bili","keyword":"西安 回民街 美食","title":"一个下午横扫西安回民街15家店！ 主街一家不吃，原来本地人爱吃的都在旁边小巷里！","likes":2324,"comments":390,"ad_score":0,"url":""},{"id":234,"source":"bili","keyword":"西安 避雷","title":"太吓人了，我算见识了什么叫穷山恶水出刁民…","likes":32622,"comments":384,"ad_score":0,"url":""},{"id":698,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"【米卡】二刷西安！吃了舌头饼肉夹馍，在华清宫看了《长恨歌》的演出，你们觉得我的理解可以打多少分？","likes":1713,"comments":378,"ad_score":0,"url":""},{"id":31,"source":"bili","keyword":"西安 美食","title":"碳水之都我来啦","likes":20340,"comments":370,"ad_score":0,"url":""},{"id":10,"source":"bili","keyword":"西安 美食","title":"来西安，没做美食攻略的，都去回民街和钟楼小区了","likes":4395,"comments":369,"ad_score":0,"url":""},{"id":194,"source":"bili","keyword":"西安 美食","title":"在威海文登区雁北街吃“文登烧烤”真的绝绝子！就连本地人都排不上队#威海美食#文登烧烤#烧烤天花板#烧烤","likes":5489,"comments":367,"ad_score":4,"url":""},{"id":23,"source":"bili","keyword":"西安 美食","title":"大吃3斤？西安这个地方还是太复杂了…","likes":7915,"comments":361,"ad_score":0,"url":""},{"id":555,"source":"bili","keyword":"西安 洒金桥 美食","title":"五一来西安玩 洒金桥美食吃这四家就够了！","likes":4293,"comments":352,"ad_score":0,"url":""},{"id":58,"source":"xhs","keyword":"西安 攻略","title":"带着父母去西安｜3天经典游玩，超精华路线","likes":7544,"comments":335,"ad_score":2,"url":""},{"id":412,"source":"bili","keyword":"西安 烤肉 推荐","title":"这才是成都自助烤肉界的，性价比No.1，7张桌子，90多一个人，铁网碳烤，高品质资格原切牛五花，鲜切牛肋条，精修牛舌，还有各种日式小吃","likes":4180,"comments":335,"ad_score":0,"url":""},{"id":571,"source":"bili","keyword":"西安 洒金桥 美食","title":"宠粉系列-粤菜大放送 大肥烧鹅三杯鸡阿嫲扎肉豪华肠粉整盘炫 | 西安 | 阿林台湾食堂","likes":28172,"comments":331,"ad_score":0,"url":""},{"id":668,"source":"bili","keyword":"西安 城墙","title":"程响首次在西安古城墙下演绎火爆全网的《可能》，与风靡一个时代的经典电影《大话西游》深情混搭，这创意绝了~","likes":4101,"comments":331,"ad_score":0,"url":""},{"id":97,"source":"bili","keyword":"西安 避雷","title":"如何看待小红书里面大量西安避雷帖子？","likes":25697,"comments":321,"ad_score":0,"url":""},{"id":447,"source":"bili","keyword":"西安 泡馍","title":"“您好！我要一碗优质羊肉泡馍，馍自己掰！一碗优质牛肉小炒”在西安小巷子里吃传统羊肉泡馍！馍必须自己掰！","likes":14361,"comments":314,"ad_score":0,"url":""},{"id":757,"source":"bili","keyword":"西安 三日游","title":"低能量人独自在兰州的4天3夜","likes":2683,"comments":313,"ad_score":0,"url":""},{"id":512,"source":"bili","keyword":"西安 凉皮","title":"想吃凉皮不用买了，30年凉皮摊主教的老配方，张张透亮，爽滑筋道","likes":6703,"comments":310,"ad_score":0,"url":""},{"id":730,"source":"bili","keyword":"五一 西安 旅游","title":"五一假期北京景区爆满乱成一锅粥，各种规则攻略全失效，怎么办啊","likes":3076,"comments":300,"ad_score":0,"url":""},{"id":642,"source":"bili","keyword":"西安 兵马俑 攻略","title":"带尼康z30搭配小套头勇闯西安街拍！太爽了！","likes":787,"comments":292,"ad_score":0,"url":""},{"id":652,"source":"bili","keyword":"西安 兵马俑 攻略","title":"兵马俑有哪些兵种？什么装备？又是怎么排兵布阵的？","likes":2561,"comments":291,"ad_score":0,"url":""},{"id":538,"source":"bili","keyword":"西安 夜市 小吃","title":"西安知名城中村，租房一个月300元，大学生在都市的第一站","likes":1058,"comments":288,"ad_score":0,"url":""},{"id":117,"source":"bili","keyword":"西安 避雷","title":"从夯到拉，锐评陕西地区985、211和双非高校，西电你还得努力！","likes":1499,"comments":283,"ad_score":0,"url":""},{"id":615,"source":"bili","keyword":"西安 大唐不夜城","title":"西安大唐不夜城不倒翁小姐姐皮卡晨来啦！","likes":37723,"comments":281,"ad_score":0,"url":""},{"id":145,"source":"bili","keyword":"西安 住宿","title":"没人比我更懂厦门住宿！厦门旅游住哪里看这个视频就够了！超全厦门住宿指南！厦门民宿酒店大测评！时间跨度达三年！不看亏！","likes":3010,"comments":269,"ad_score":0,"url":""},{"id":475,"source":"bili","keyword":"西安 肉夹馍","title":"到了西安先吃个肉夹馍，哎呀呀，太香了","likes":1417,"comments":268,"ad_score":0,"url":""},{"id":685,"source":"bili","keyword":"西安 城墙","title":"男子爬西安城墙拗造型时摔落，网友评论亮了","likes":2896,"comments":265,"ad_score":0,"url":""},{"id":689,"source":"bili","keyword":"西安 华清宫 长恨歌","title":"西安-华清池《长恨歌》（全）","likes":1969,"comments":264,"ad_score":0,"url":""},{"id":462,"source":"bili","keyword":"西安 肉夹馍","title":"#陕西美食 #西安肉夹馍 #潼关肉夹馍 馍夹一切，西安，下次再来~~","likes":13945,"comments":261,"ad_score":0,"url":""},{"id":390,"source":"bili","keyword":"西安 烤肉 推荐","title":"回头吃了41次！我心中的成都百元烤肉自助餐天花板！","likes":4126,"comments":259,"ad_score":2,"url":""},{"id":231,"source":"bili","keyword":"西安 避雷","title":"中国大学评分之陕西高校评分合集","likes":2236,"comments":258,"ad_score":0,"url":""},{"id":755,"source":"bili","keyword":"西安 三日游","title":"城中村小伙离开西安，穷游旅行流窜到汉中，第一晚先找个网吧落脚","likes":1628,"comments":248,"ad_score":0,"url":""},{"id":658,"source":"bili","keyword":"西安 城墙","title":"航拍西安古城墙，囊括四角十八门镜头，带你了解城墙的前世今生！","likes":1768,"comments":247,"ad_score":0,"url":""},{"id":122,"source":"bili","keyword":"西安 避雷","title":"刚从西安回来！避坑指南！一定用的上！别踩坑别踩坑","likes":1836,"comments":240,"ad_score":0,"url":""}],"cooccur":[{"source":"凉皮","target":"肉夹馍","value":120},{"source":"小炒","target":"泡馍","value":99},{"source":"回民街","target":"洒金桥","value":74},{"source":"兵马俑","target":"华清池","value":69},{"source":"兵马俑","target":"大雁塔","value":65},{"source":"泡馍","target":"肉夹馍","value":63},{"source":"兵马俑","target":"城墙","value":63},{"source":"大雁塔","target":"钟楼","value":57},{"source":"米皮","target":"肉夹馍","value":56},{"source":"大唐不夜城","target":"大雁塔","value":55},{"source":"兵马俑","target":"大唐不夜城","value":53},{"source":"城墙","target":"大雁塔","value":52},{"source":"兵马俑","target":"华山","value":49},{"source":"凉皮","target":"米皮","value":49},{"source":"兵马俑","target":"长恨歌","value":48},{"source":"泡馍","target":"葫芦头","value":47},{"source":"回民街","target":"烤肉","value":46},{"source":"回民街","target":"鼓楼","value":45},{"source":"回民街","target":"钟楼","value":44},{"source":"兵马俑","target":"钟楼","value":44},{"source":"回民街","target":"城墙","value":43},{"source":"回民街","target":"泡馍","value":41},{"source":"回民街","target":"肉夹馍","value":41},{"source":"城墙","target":"鼓楼","value":41},{"source":"回民街","target":"大雁塔","value":40},{"source":"兵马俑","target":"回民街","value":39},{"source":"大雁塔","target":"鼓楼","value":38},{"source":"城墙","target":"钟楼","value":37},{"source":"羊肉泡馍","target":"肉夹馍","value":37},{"source":"擀面皮","target":"米皮","value":37}]}
+</script>
+
+<script>
+(function(){
+  const DATA = JSON.parse(document.getElementById('data-json').textContent);
+  const root = document.documentElement;
+
+  // ─────── theme ───────
+  const saved = localStorage.getItem('xdc-theme');
+  if (saved) root.setAttribute('data-theme', saved);
+  else if (window.matchMedia('(prefers-color-scheme: light)').matches)
+    root.setAttribute('data-theme', 'light');
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('xdc-theme', next);
+    setTimeout(redrawAll, 80);
+  });
+
+  // ─────── ECharts theme (gold-editorial) ───────
+  function tokens() {
+    const cs = getComputedStyle(root);
+    const theme = root.getAttribute('data-theme');
+    return {
+      ink1: cs.getPropertyValue('--ink-1').trim(),
+      ink2: cs.getPropertyValue('--ink-2').trim(),
+      ink3: cs.getPropertyValue('--ink-3').trim(),
+      ink4: cs.getPropertyValue('--ink-4').trim(),
+      rule: cs.getPropertyValue('--rule').trim(),
+      accent: cs.getPropertyValue('--accent').trim(),
+      accentSoft: cs.getPropertyValue('--accent-soft').trim(),
+      isDark: theme === 'dark',
+    };
+  }
+
+  function palette() {
+    const t = tokens();
+    return t.isDark
+      ? ['#E8D095', '#C9A961', '#A8873E', '#8C6D2C', '#5E4B1E', '#88B8D9', '#A8BD95', '#D9A88E']
+      : ['#8C6D2C', '#A8873E', '#C9A961', '#D9BD7E', '#E0C98A', '#4E7FA8', '#6C8E63', '#A8683E'];
+  }
+
+  function baseOpt(extra = {}) {
+    const t = tokens();
+    return {
+      color: palette(),
+      textStyle: { fontFamily: "'Inter Tight','Noto Serif SC',sans-serif", color: t.ink2 },
+      title: { textStyle: { color: t.ink1, fontFamily: "'Fraunces',serif", fontWeight: 400 } },
+      grid: { left: 18, right: 28, top: 28, bottom: 18, containLabel: true },
+      tooltip: {
+        backgroundColor: t.isDark ? 'rgba(20,18,16,.95)' : 'rgba(255,253,245,.97)',
+        borderColor: t.accent,
+        borderWidth: 1,
+        textStyle: { color: t.ink1, fontFamily: "'Inter Tight',sans-serif", fontSize: 12 },
+        extraCssText: 'backdrop-filter:blur(10px);box-shadow:0 18px 40px -16px rgba(0,0,0,.4);padding:10px 12px;border-radius:10px;',
+      },
+      xAxis: {
+        axisLine: { lineStyle: { color: t.rule } },
+        axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        splitLine: { lineStyle: { color: t.rule, type: [2,4], dashOffset: 3 } },
+      },
+      ...extra,
+    };
+  }
+
+  const charts = {};
+  function mountChart(id, buildOpt) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (charts[id]) { charts[id].dispose(); }
+    charts[id] = echarts.init(el, null, { renderer: 'canvas' });
+    charts[id].setOption(buildOpt());
+    charts[id]._builder = buildOpt;
+  }
+
+  function redrawAll() {
+    Object.keys(charts).forEach(id => {
+      if (charts[id]._builder) {
+        charts[id].setOption(charts[id]._builder(), true);
+      }
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    Object.values(charts).forEach(c => c.resize());
+  });
+
+  // ─────── header ───────
+  const M = DATA.meta;
+  document.getElementById('gen-time').textContent = 'Generated ' + M.generated_at;
+  document.getElementById('gen-summary').textContent =
+    `${M.posts_total} posts · ${M.comments_total} comments · ${M.keywords_total} keywords`;
+
+  // ─────── KPI cards ───────
+  const sourceMap = Object.fromEntries(DATA.sources.map(s => [s.source, s.count]));
+  const biliN = sourceMap.bili || 0;
+  const xhsN = sourceMap.xhs || 0;
+  const ratio = xhsN > 0 ? (biliN/xhsN).toFixed(1) : '∞';
+
+  const kpis = [
+    { label: 'Posts total',    value: M.posts_total,     foot: `bili ${biliN} · xhs ${xhsN}` },
+    { label: 'Comments',       value: M.comments_total,  foot: 'aggregated from both' },
+    { label: 'Keywords',       value: M.keywords_total,  foot: 'search seeds' },
+    { label: 'bili : xhs',     value: `${ratio}×`,       foot: 'post volume ratio', accent: true },
+    { label: 'Flagged',        value: M.flagged_posts + M.flagged_comments, foot: `posts ${M.flagged_posts} · cmts ${M.flagged_comments}` },
+  ];
+  document.getElementById('kpis').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.accent ? 'accent' : ''}">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value.toLocaleString ? k.value.toLocaleString() : k.value}</div>
+      <div class="foot">${k.foot}</div>
+    </div>
+  `).join('');
+
+  // ─────── Tabs ───────
+  const TABS = [
+    ['tab-overview','概览','I'],
+    ['tab-foods','美食','II'],
+    ['tab-spots','景点','III'],
+    ['tab-places','店名','IV'],
+    ['tab-comments','评论','V'],
+    ['tab-ads','广告','VI'],
+    ['tab-posts','明细','VII'],
+  ];
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = TABS.map(([id,name,num],i) => `
+    <button role="tab" data-target="${id}" aria-selected="${i===0}">
+      <span class="num">${num}</span>${name}
+    </button>`).join('');
+  tabsEl.addEventListener('click', e => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    tabsEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    document.querySelectorAll('section.panel').forEach(p =>
+      p.classList.toggle('active', p.id === btn.dataset.target));
+    setTimeout(() => Object.values(charts).forEach(c => c.resize()), 250);
+  });
+
+  // ─────── Overview ───────
+  mountChart('chart-source', () => {
+    const t = tokens();
+    return {
+      ...baseOpt({ grid: null, legend: { show: false }}),
+      series: [{
+        type: 'pie',
+        radius: ['52%', '78%'],
+        center: ['50%','50%'],
+        itemStyle: { borderColor: t.isDark ? '#0E0C0A' : '#FBF7EC', borderWidth: 3, borderRadius: 4 },
+        label: {
+          color: t.ink2, fontFamily: "'Fraunces',serif", fontSize: 13,
+          formatter: p => `${p.name}\n{v|${p.value}}`,
+          rich: { v: { color: t.accent, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, padding:[4,0,0,0] } }
+        },
+        labelLine: { lineStyle: { color: t.ink4 } },
+        data: DATA.sources.map(s => ({ name: s.source, value: s.count })),
+      }],
+      title: { text: 'source', left: 20, top: 8, textStyle: { fontSize: 13, color: t.ink3, fontStyle: 'italic' }},
+    };
+  });
+
+  mountChart('chart-keyword', () => {
+    const t = tokens();
+    const data = DATA.keywords.slice(0,10);
+    return {
+      ...baseOpt({ grid: { left: 90, right: 26, top: 28, bottom: 14 } }),
+      xAxis: { type: 'value', axisLine: { show: false }, axisLabel: { show: false }, splitLine: { show: false } },
+      yAxis: {
+        type: 'category',
+        inverse: true,
+        data: data.map(d => d.keyword),
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink2, fontFamily: "'Noto Serif SC',serif", fontSize: 12 }
+      },
+      series: [{
+        type: 'bar',
+        data: data.map(d => d.count),
+        barWidth: 10,
+        itemStyle: {
+          borderRadius: [0,3,3,0],
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+            colorStops: [
+              {offset: 0, color: 'rgba(201,169,97,.25)'},
+              {offset: 1, color: 'var(--gold-2)'.replace('var(--gold-2)', t.accent)},
+            ]
+          }
+        },
+        label: { show: true, position: 'right', color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }
+      }],
+      title: { text: 'by keyword', left: 20, top: 8, textStyle: { fontSize: 13, color: t.ink3, fontStyle: 'italic' }},
+    };
+  });
+
+  mountChart('chart-sankey', () => {
+    const t = tokens();
+    const sk = DATA.source_keyword;
+    const nodes = new Map();
+    sk.forEach(r => {
+      nodes.set(r.source, { name: r.source });
+      nodes.set(r.keyword, { name: r.keyword });
+    });
+    return {
+      ...baseOpt({ grid: null }),
+      series: [{
+        type: 'sankey',
+        left: 20, right: 20, top: 16, bottom: 16,
+        nodeWidth: 10,
+        nodeGap: 10,
+        lineStyle: { color: 'gradient', curveness: .52, opacity: .55 },
+        label: { color: t.ink1, fontFamily: "'Fraunces',serif", fontSize: 13 },
+        data: Array.from(nodes.values()),
+        links: sk.map(r => ({ source: r.source, target: r.keyword, value: r.count })),
+        emphasis: { focus: 'adjacency', lineStyle: { opacity: .9 } },
+      }],
+    };
+  });
+
+  // ─────── Foods ───────
+  mountChart('chart-foods', () => horizontalBar(DATA.foods, 'foods'));
+  // ─────── Spots ───────
+  mountChart('chart-spots', () => horizontalBar(DATA.attractions, 'spots'));
+
+  function horizontalBar(rows, kind) {
+    const t = tokens();
+    const data = rows.slice().reverse();
+    return {
+      ...baseOpt({ grid: { left: 110, right: 40, top: 10, bottom: 20 } }),
+      xAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: t.rule, type: [2,4] } } },
+      yAxis: {
+        type: 'category',
+        data: data.map(d => d.name),
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink1, fontFamily: "'Noto Serif SC',serif", fontSize: 13 }
+      },
+      series: [{
+        type: 'bar',
+        data: data.map(d => d.count),
+        barWidth: 12,
+        itemStyle: {
+          borderRadius: [0,4,4,0],
+          color: (p) => {
+            return new echarts.graphic.LinearGradient(0,0,1,0,[
+              { offset: 0, color: t.isDark ? 'rgba(232,208,149,.18)' : 'rgba(168,135,62,.18)' },
+              { offset: 1, color: t.accent }
+            ]);
+          }
+        },
+        label: {
+          show: true, position: 'right',
+          color: t.ink2, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11,
+          formatter: '{c}'
+        }
+      }]
+    };
+  }
+
+  // ─────── Sentiment diverging bar (好评 vs 差评) ───────
+  function sentimentBar(rows, chartId) {
+    const t = tokens();
+    const data = rows.slice().reverse();
+    return mountChart(chartId, () => ({
+      ...baseOpt({
+        legend: {
+          show: true, top: 4, right: 10,
+          textStyle: { color: t.ink2, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+          itemWidth: 10, itemHeight: 10, itemGap: 18,
+        },
+        grid: { left: 110, right: 60, top: 30, bottom: 20 },
+      }),
+      xAxis: {
+        type: 'value',
+        axisLine: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11,
+          formatter: v => Math.abs(v) },
+        splitLine: { lineStyle: { color: t.rule, type: [2,4] } },
+      },
+      yAxis: {
+        type: 'category',
+        data: data.map(d => d.name),
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink1, fontFamily: "'Noto Serif SC',serif", fontSize: 13 },
+      },
+      series: [
+        {
+          name: '好评',
+          type: 'bar',
+          stack: 'sentiment',
+          data: data.map(d => d.pos),
+          barWidth: 18,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0,0,1,0,[
+              { offset: 0, color: t.isDark ? 'rgba(232,208,149,.18)' : 'rgba(168,135,62,.18)' },
+              { offset: 1, color: t.isDark ? '#E8D095' : '#A8873E' },
+            ]),
+            borderRadius: [0,4,4,0],
+          },
+          label: { show: true, position: 'right', color: t.ink2,
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: 10,
+            formatter: p => p.value > 0 ? p.value : '' },
+        },
+        {
+          name: '差评',
+          type: 'bar',
+          stack: 'sentiment',
+          data: data.map(d => -d.neg),
+          barWidth: 18,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(1,0,0,0,[
+              { offset: 0, color: t.isDark ? 'rgba(122,69,48,.18)' : 'rgba(107,58,34,.18)' },
+              { offset: 1, color: t.isDark ? '#7A4530' : '#6B3A22' },
+            ]),
+            borderRadius: [4,0,0,4],
+          },
+          label: { show: true, position: 'left', color: t.ink2,
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: 10,
+            formatter: p => p.value < 0 ? Math.abs(p.value) : '' },
+        },
+      ],
+      tooltip: {
+        trigger: 'axis', axisPointer: { type: 'shadow' },
+        formatter: params => {
+          const name = params[0].name;
+          const pos = params.find(p => p.seriesName === '好评');
+          const neg = params.find(p => p.seriesName === '差评');
+          return `<b>${name}</b><br/>好评: ${pos ? pos.value : 0}<br/>差评: ${neg ? Math.abs(neg.value) : 0}`;
+        },
+      },
+    }));
+  }
+
+  if (DATA.foods_sentiment) sentimentBar(DATA.foods_sentiment, 'chart-foods-sent');
+  if (DATA.attractions_sentiment) sentimentBar(DATA.attractions_sentiment, 'chart-spots-sent');
+  if (DATA.places_sentiment) sentimentBar(DATA.places_sentiment, 'chart-places-sent');
+
+  // ─────── NSS ranking bar (差评率 + Wilson Score) ───────
+  function nssBar(rows, chartId) {
+    if (!rows || !rows.length) return;
+    // 按 NSS 从低（差）到高（好）排序
+    const sorted = rows.slice()
+      .filter(d => (d.pos + d.neg) > 0)
+      .sort((a, b) => b.nss - a.nss);  // 最好的在上面，最差在下面
+    if (!sorted.length) return;
+
+    mountChart(chartId, () => {
+      const t = tokens();
+      // 相对映射：按本组 min/max 做「氧化铜 → 抛光金」渐变
+      const vals = sorted.map(d => d.nss);
+      const minV = Math.min(...vals);
+      const maxV = Math.max(...vals);
+      const rangeV = maxV - minV || 0.01;
+      // dark: 暗铜 #7A4530 → 琥珀 #C49450 → 香槟金 #E8D095
+      // light: 暗铜 #6B3A22 → 青铜 #8C6D2C → 金 #C9A961
+      const stops = t.isDark
+        ? [[122,69,48], [196,148,80], [232,208,149]]
+        : [[107,58,34], [140,109,44], [201,169,97]];
+      function nssColor(val) {
+        const p = (val - minV) / rangeV; // 0=本组最差, 1=最好
+        let r, g, b;
+        if (p <= 0.5) {
+          const q = p / 0.5;
+          r = stops[0][0] + (stops[1][0]-stops[0][0])*q;
+          g = stops[0][1] + (stops[1][1]-stops[0][1])*q;
+          b = stops[0][2] + (stops[1][2]-stops[0][2])*q;
+        } else {
+          const q = (p - 0.5) / 0.5;
+          r = stops[1][0] + (stops[2][0]-stops[1][0])*q;
+          g = stops[1][1] + (stops[2][1]-stops[1][1])*q;
+          b = stops[1][2] + (stops[2][2]-stops[1][2])*q;
+        }
+        return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+      }
+
+      return {
+        ...baseOpt({
+          grid: { left: 110, right: 80, top: 10, bottom: 20 },
+        }),
+        xAxis: {
+          type: 'value',
+          min: -1, max: 1,
+          axisLine: { show: true, lineStyle: { color: t.rule } },
+          axisLabel: {
+            color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11,
+            formatter: v => v.toFixed(1),
+          },
+          splitLine: { lineStyle: { color: t.rule, type: [2,4] } },
+        },
+        yAxis: {
+          type: 'category',
+          data: sorted.map(d => d.name),
+          inverse: true,
+          axisLine: { show: false }, axisTick: { show: false },
+          axisLabel: { color: t.ink1, fontFamily: "'Noto Serif SC',serif", fontSize: 13 },
+        },
+        series: [{
+          type: 'bar',
+          data: sorted.map(d => {
+            const solid = nssColor(d.nss);
+            // 半透明起点 → 实色终点，模拟金属光泽
+            const fade = solid.replace('rgb(', 'rgba(').replace(')', ',.18)');
+            return {
+              value: d.nss,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(
+                  d.nss >= 0 ? 0 : 1, 0, d.nss >= 0 ? 1 : 0, 0,
+                  [{ offset: 0, color: fade }, { offset: 1, color: solid }]
+                ),
+                borderRadius: d.nss >= 0 ? [0,4,4,0] : [4,0,0,4],
+              },
+              _raw: d,
+            };
+          }),
+          barWidth: 16,
+          label: {
+            show: true,
+            position: 'right',
+            color: t.ink2,
+            fontFamily: "'IBM Plex Mono',monospace",
+            fontSize: 10,
+            formatter: p => {
+              const v = p.value;
+              return (v >= 0 ? '+' : '') + v.toFixed(2);
+            },
+          },
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            lineStyle: { color: t.ink4, type: 'dashed', width: 1 },
+            data: [{ xAxis: 0 }],
+            label: { show: false },
+          },
+        }],
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: params => {
+            const p = params[0];
+            const d = p.data._raw;
+            if (!d) return '';
+            const nr = (d.neg_ratio * 100).toFixed(1);
+            const wn = (d.wilson_neg * 100).toFixed(1);
+            return [
+              `<b style="font-family:'Noto Serif SC',serif;font-size:14px">${esc(d.name)}</b>`,
+              `<span style="color:${nssColor(d.nss)}">NSS: ${d.nss >= 0 ? '+' : ''}${d.nss.toFixed(3)}</span>`,
+              `差评率: ${nr}%`,
+              `Wilson 置信下界: ${wn}%`,
+              `<span style="color:#E8D095">好评 ${d.pos}</span> · <span style="color:#7A4530">差评 ${d.neg}</span> · 总提及 ${d.total}`,
+            ].join('<br/>');
+          },
+          backgroundColor: tokens().isDark ? 'rgba(20,18,16,.95)' : 'rgba(255,253,245,.97)',
+          borderColor: tokens().accent,
+          borderWidth: 1,
+          textStyle: { color: tokens().ink1, fontFamily: "'Inter Tight',sans-serif", fontSize: 12 },
+          extraCssText: 'backdrop-filter:blur(10px);box-shadow:0 18px 40px -16px rgba(0,0,0,.4);padding:10px 12px;border-radius:10px;',
+        },
+      };
+    });
+  }
+
+  if (DATA.foods_sentiment) nssBar(DATA.foods_sentiment, 'chart-foods-nss');
+  if (DATA.attractions_sentiment) nssBar(DATA.attractions_sentiment, 'chart-spots-nss');
+  if (DATA.places_sentiment) nssBar(DATA.places_sentiment, 'chart-places-nss');
+
+  // co-occur table
+  document.getElementById('table-cooccur').innerHTML = tableHtml(
+    ['A','B','Co-mentions'],
+    DATA.cooccur.map(r => [
+      `<span class="name">${esc(r.source)}</span>`,
+      `<span class="name">${esc(r.target)}</span>`,
+      `<span class="score">${r.value}</span>`
+    ]),
+    [null, null, 'num']
+  ) || emptyHtml('共同提及未达到阈值 (≥2)。');
+
+  // ─────── Places ───────
+  const placeMax = Math.max(...DATA.places.map(p => p.count), 1);
+  document.getElementById('list-places').innerHTML = DATA.places.map((p, i) => `
+    <li>
+      <span class="rank">${String(i+1).padStart(2,'0')}</span>
+      <span class="name">${esc(p.name)}</span>
+      <span class="cnt">${p.count}</span>
+    </li>
+  `).join('');
+
+  // ─────── Comments histogram ───────
+  mountChart('chart-hist', () => {
+    const t = tokens();
+    const H = DATA.length_hist;
+    return {
+      ...baseOpt({ legend: {
+        show: true, top: 4, right: 10,
+        textStyle: { color: t.ink2, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        itemWidth: 10, itemHeight: 10, itemGap: 18,
+      }}),
+      xAxis: {
+        type: 'category', data: H.labels,
+        axisLine: { lineStyle: { color: t.rule } }, axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5, rotate: 0 }
+      },
+      yAxis: {
+        type: 'value',
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 },
+        splitLine: { lineStyle: { color: t.rule, type: [2,4] } }
+      },
+      series: [
+        {
+          name: 'bili', type: 'bar', data: H.bili, barGap: '10%', barWidth: 14,
+          itemStyle: { color: t.isDark ? '#88B8D9' : '#4E7FA8', borderRadius: [4,4,0,0] }
+        },
+        {
+          name: 'xhs', type: 'bar', data: H.xhs, barWidth: 14,
+          itemStyle: {
+            borderRadius: [4,4,0,0],
+            color: new echarts.graphic.LinearGradient(0,0,0,1,[
+              { offset: 0, color: t.accent },
+              { offset: 1, color: t.isDark ? 'rgba(168,135,62,.35)' : 'rgba(140,109,44,.35)' }
+            ])
+          }
+        },
+      ]
+    };
+  });
+
+  const stats = DATA.length_stats;
+  const statRows = [];
+  ['bili','xhs'].forEach(src => {
+    const s = stats[src]; if (!s) return;
+    statRows.push([
+      `<span class="chip ${src}">${src}</span>`,
+      s.n, s.min, s.median.toFixed ? s.median.toFixed(0) : s.median,
+      s.p90, s.max, s.mean.toFixed(1)
+    ]);
+  });
+  document.getElementById('table-stats').innerHTML = tableHtml(
+    ['Platform','n','min','median','p90','max','mean'],
+    statRows,
+    [null,'num','num','num','num','num','num']
+  );
+
+  // density: median and p90 compared
+  mountChart('chart-density', () => {
+    const t = tokens();
+    const bili = stats.bili, xhs = stats.xhs;
+    if (!bili || !xhs) return baseOpt();
+    return {
+      ...baseOpt({ grid: { left: 70, right: 40, top: 20, bottom: 30 } }),
+      xAxis: { type: 'value', axisLabel: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace" }, splitLine: { lineStyle: { color: t.rule, type: [2,4] } } },
+      yAxis: {
+        type: 'category', data: ['median','p90','mean'],
+        axisLine: { show: false }, axisTick: { show: false },
+        axisLabel: { color: t.ink2, fontFamily: "'Fraunces',serif", fontSize: 13, fontStyle: 'italic' }
+      },
+      series: [
+        { name: 'bili', type: 'bar', barGap: '10%', barWidth: 12,
+          data: [bili.median, bili.p90, bili.mean.toFixed(1)*1],
+          itemStyle: { color: t.isDark ? '#88B8D9' : '#4E7FA8', borderRadius: [0,3,3,0] },
+          label: { show: true, position: 'right', color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5 }},
+        { name: 'xhs', type: 'bar', barWidth: 12,
+          data: [xhs.median, xhs.p90, xhs.mean.toFixed(1)*1],
+          itemStyle: { color: t.accent, borderRadius: [0,3,3,0] },
+          label: { show: true, position: 'right', color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10.5 }},
+      ],
+      legend: { show: true, top: 0, right: 10,
+        textStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }}
+    };
+  });
+
+  // ─────── Ads ───────
+  mountChart('chart-ads', () => {
+    const t = tokens();
+    const posts = DATA.ad_posts.map(r => ({
+      value: [r.ad_score, r.likes + r.comments_count, r.title, r.source],
+      symbolSize: Math.min(26, 8 + Math.log10((r.likes+1)) * 4),
+    }));
+    const cmts = DATA.ad_comments.map(r => ({
+      value: [r.ad_score, r.likes, r.preview, r.source],
+      symbolSize: Math.min(20, 7 + (r.likes ? Math.log10(r.likes+1)*3 : 0)),
+    }));
+    return {
+      ...baseOpt({ grid: { left: 50, right: 30, top: 30, bottom: 40 } }),
+      xAxis: { type: 'value', name: 'ad score', nameLocation: 'middle', nameGap: 26,
+        nameTextStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 } },
+      yAxis: { type: 'value', name: 'reach (likes+cmts)', nameLocation: 'middle', nameGap: 40, nameRotate: 90,
+        nameTextStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 } },
+      tooltip: {
+        ...baseOpt().tooltip,
+        formatter: p => `<div style="max-width:320px;font-family:'Fraunces',serif"><em>${p.value[3]}</em> · score ${p.value[0]}<br>${esc(p.value[2]||'')}</div>`
+      },
+      legend: { top: 0, right: 10, textStyle: { color: t.ink3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }},
+      series: [
+        { name: 'posts', type: 'scatter', data: posts,
+          itemStyle: { color: t.accent, opacity: .75, shadowColor: 'rgba(201,169,97,.5)', shadowBlur: 6 }},
+        { name: 'comments', type: 'scatter', data: cmts,
+          itemStyle: { color: t.isDark ? '#E08B6F' : '#9E4E2E', opacity: .55 } }
+      ]
+    };
+  });
+
+  const adKind = document.getElementById('ad-kind');
+  function renderAdTable() {
+    const kind = adKind.value;
+    if (kind === 'posts') {
+      const rows = DATA.ad_posts.map(r => [
+        `<span class="chip ${r.source}">${r.source}</span>`,
+        esc(r.keyword),
+        `<span class="title">${esc(r.title)}</span>`,
+        `<span class="score ${r.ad_score>=6?'hi':''}">${r.ad_score}</span>`,
+        esc(r.hits)
+      ]);
+      document.getElementById('table-ads').innerHTML = tableHtml(
+        ['Src','Keyword','Title','Score','Signals'], rows, [null,null,null,'num',null]
+      ) || emptyHtml('暂无可疑帖子。');
+    } else {
+      const rows = DATA.ad_comments.map(r => [
+        `<span class="chip ${r.source}">${r.source}</span>`,
+        `<span class="preview">${esc(r.preview)}</span>`,
+        `<span class="score ${r.ad_score>=6?'hi':''}">${r.ad_score}</span>`,
+        esc(r.hits)
+      ]);
+      document.getElementById('table-ads').innerHTML = tableHtml(
+        ['Src','Preview','Score','Signals'], rows, [null,null,'num',null]
+      ) || emptyHtml('暂无可疑评论。');
+    }
+  }
+  adKind.addEventListener('change', renderAdTable);
+  renderAdTable();
+
+  // ─────── Posts table ───────
+  const uniqSources = [...new Set(DATA.posts_table.map(p => p.source))];
+  const uniqKeywords = [...new Set(DATA.posts_table.map(p => p.keyword).filter(Boolean))];
+  document.getElementById('f-source').insertAdjacentHTML('beforeend',
+    uniqSources.map(s => `<option value="${s}">${s}</option>`).join(''));
+  document.getElementById('f-keyword').insertAdjacentHTML('beforeend',
+    uniqKeywords.map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join(''));
+
+  ['f-source','f-keyword','f-search'].forEach(id =>
+    document.getElementById(id).addEventListener('input', renderPostsTable));
+
+  function renderPostsTable() {
+    const s = document.getElementById('f-source').value;
+    const k = document.getElementById('f-keyword').value;
+    const q = document.getElementById('f-search').value.trim().toLowerCase();
+    const maxL = Math.max(...DATA.posts_table.map(p => p.likes), 1);
+    const rows = DATA.posts_table
+      .filter(p => (!s || p.source===s) && (!k || p.keyword===k) && (!q || (p.title||'').toLowerCase().includes(q)))
+      .map(p => [
+        `<span class="chip ${p.source}">${p.source}</span>`,
+        esc(p.keyword),
+        `<span class="title">${esc(p.title)}</span>`,
+        `<div class="bar" style="width:90px"><span style="width:${Math.min(100, p.likes/maxL*100)}%"></span></div><span class="num" style="font-family:var(--font-mono);color:var(--ink-3);font-size:11px;margin-left:6px">${p.likes}</span>`,
+        p.comments,
+        `<span class="score ${p.ad_score>=6?'hi':''}">${p.ad_score}</span>`,
+      ]);
+    document.getElementById('table-posts').innerHTML = tableHtml(
+      ['Src','Keyword','Title','Likes','Cmts','Ad'], rows, [null,null,null,null,'num','num']
+    ) || emptyHtml('没有匹配的记录。');
+  }
+  renderPostsTable();
+
+  // ─────── helpers ───────
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function tableHtml(heads, rows, classes) {
+    if (!rows.length) return '';
+    const ths = heads.map((h,i) => `<th class="${classes && classes[i] || ''}">${h}</th>`).join('');
+    const trs = rows.map(r =>
+      '<tr>' + r.map((c,i) => `<td class="${classes && classes[i] || ''}">${c}</td>`).join('') + '</tr>'
+    ).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+  }
+  function emptyHtml(msg) {
+    return `<div style="padding:40px 20px;text-align:center;font-family:var(--font-serif);font-style:italic;color:var(--ink-4)">${msg}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
